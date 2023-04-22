@@ -1,3 +1,5 @@
+use std::collections::HashMap;
+
 use tree_sitter::{Parser, Query, QueryCursor};
 
 fn main() {
@@ -8,12 +10,24 @@ fn main() {
         .expect("Error loading scss grammar");
     let tree = parser.parse(code, None).unwrap();
 
-    let query = Query::new(tree_sitter_css::language(), "(class_selector) @class-name").unwrap();
+    let query = Query::new(
+        tree_sitter_css::language(),
+        r#"(class_selector
+        ) @class-name"#,
+    )
+    .unwrap();
     let mut query_cursor = QueryCursor::new();
     let matches = query_cursor.matches(&query, tree.root_node(), code.as_bytes());
+    let mut classes: HashMap<&str, Vec<&str>> = HashMap::new();
+
     for each_match in matches {
         for capture in each_match.captures {
-            dbg!(capture.node.utf8_text(code.as_bytes()).unwrap());
+            let class_name = capture.node.utf8_text(code.as_bytes()).unwrap();
+            let existing = classes.get(class_name);
+            // classes.insert(class_name, existing.unwrap_or_default());
+            classes.insert(class_name, vec![]);
         }
     }
+
+    dbg!(classes);
 }
