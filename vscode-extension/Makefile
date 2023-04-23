@@ -1,0 +1,11 @@
+.PHONY: clean build test
+
+clean:
+	rm -rf dist out autocompletion-engine
+
+build:
+	npm run compile
+
+test:
+	npm run test
+

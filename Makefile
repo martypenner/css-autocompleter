@@ -1,6 +1,6 @@
 .PHONY: test rust-test rust-build fmt clippy lint wasm-build wasm-test js-test \
 	lint-js lint-rust fmt-rust fmt-js \
-	clean clean-rust clean-js clean-wasm-api
+	clean clean-rust clean-js
 
 test:  rust-test wasm-test js-test
 
@@ -31,23 +31,21 @@ lint: clippy lint-js lint-rust
 	$(MAKE) fmt
 
 wasm-build:
-	$(MAKE) -C polar-wasm-api build
+	$(MAKE) -C autocompletion-engine build OUT_DIR=../vscode-extension/autocompletion-engine
 
 wasm-test:
-	$(MAKE) -C polar-wasm-api test
+	$(MAKE) -C autocompletion-engine test
+
+js-build:
+	$(MAKE) -C vscode-extension build
 
 js-test:
-	$(MAKE) -C languages/js parity
-	$(MAKE) -C languages/js test
+	echo "TODO: js-test"
 
-clean: clean-docs clean-rust clean-js clean-wasm-api
+clean: clean-rust clean-js
 
 clean-rust:
 	cargo clean
 
 clean-js:
-	$(MAKE) -C languages/js clean
-
-clean-wasm-api:
-	$(MAKE) -C wasm-api clean
-
+	$(MAKE) -C vscode-extension clean

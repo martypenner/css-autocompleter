@@ -1,6 +1,6 @@
-// The module 'vscode' contains the VS Code extensibility API
-// Import the module and reference it with the alias vscode in your code below
 import * as vscode from 'vscode';
+// @ts-expect-erroor types aren't working right now
+//import { greet } from './autocompletion-engine/autocompletion_engine.js';
 
 // This method is called when your extension is activated
 // Your extension is activated the very first time the command is executed
@@ -18,6 +18,8 @@ export function activate(context: vscode.ExtensionContext) {
     vscode.window.showInformationMessage('Hello World from css-to-go!');
   });
 
+  // greet();
+
   const provider = vscode.languages.registerCompletionItemProvider(
     'html',
     {
@@ -32,6 +34,7 @@ export function activate(context: vscode.ExtensionContext) {
         const classRegex = /class=["'][^"']*/giu;
 
         for (const match of line.matchAll(classRegex)) {
+          // eslint-disable-next-line eqeqeq
           if (match.index == null) {
             continue;
           }

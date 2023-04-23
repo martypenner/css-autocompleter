@@ -1,10 +1,27 @@
 [package]
 name = "autocompletion-engine"
 version = "0.1.0"
+authors = ["Marty Penner <martypenner@users.noreply.github.com>"]
 edition = "2021"
 
 # See more keys and their definitions at https://doc.rust-lang.org/cargo/reference/manifest.html
 
+[lib]
+crate-type = ["cdylib", "rlib"]
+
+[features]
+default = ["console_error_panic_hook"]
+
 [dependencies]
 tree-sitter = "0.20.10"
 tree-sitter-css = { git = "https://github.com/tree-sitter/tree-sitter-css.git", version = "0.19.0" }
+wasm-bindgen = "0.2.63"
+
+# The `console_error_panic_hook` crate provides better debugging of panics by
+# logging them with `console.error`. This is great for development, but requires
+# all the `std::fmt` and `std::panicking` infrastructure, so isn't great for
+# code size when deploying.
+console_error_panic_hook = { version = "0.1.6", optional = true }
+
+[dev-dependencies]
+wasm-bindgen-test = "0.3.13"
