@@ -2,7 +2,7 @@
   description = "A Nix-flake-based Rust development environment";
 
   inputs = {
-    nixpkgs.url = "github:NixOS/nixpkgs/release-22.11";
+    nixpkgs.url = "github:NixOS/nixpkgs/nixos-unstable";
     flake-utils.url = "github:numtide/flake-utils";
     rust-overlay.url = "github:oxalica/rust-overlay";
   };
@@ -40,19 +40,19 @@
       devShells.default = pkgs.mkShell {
         packages = with pkgs; [
           rustToolchain
+          gnumake
           openssl
           pkg-config
           cargo-deny
           cargo-edit
           cargo-watch
           rust-analyzer
-					gnumake
 					wasm-pack
 					wasm-bindgen-cli
 
-					exa
-					fd
-					fzf
+          exa
+          fd
+          fzf
         ];
 
         shellHook = ''
