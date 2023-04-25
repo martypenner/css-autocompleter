@@ -50,6 +50,9 @@
 					wasm-pack
 					wasm-bindgen-cli
 
+          # nodejs 18
+          nodejs
+
           exa
           fd
           fzf
