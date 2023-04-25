@@ -1,6 +1,6 @@
 import * as vscode from 'vscode';
-// @ts-expect-erroor types aren't working right now
-//import { greet } from './autocompletion-engine/autocompletion_engine.js';
+// @ts-expect-error types aren't working right now
+import { greet } from './autocompletion-engine/autocompletion_engine.js';
 
 // This method is called when your extension is activated
 // Your extension is activated the very first time the command is executed
@@ -18,7 +18,7 @@ export function activate(context: vscode.ExtensionContext) {
     vscode.window.showInformationMessage('Hello World from css-to-go!');
   });
 
-  // greet();
+  greet();
 
   const provider = vscode.languages.registerCompletionItemProvider(
     'html',

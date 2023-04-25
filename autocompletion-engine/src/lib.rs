@@ -3,18 +3,37 @@ mod utils;
 use std::collections::HashMap;
 
 use tree_sitter::{Parser, Query, QueryCursor};
+use utils::set_panic_hook;
 use wasm_bindgen::prelude::*;
 
 #[wasm_bindgen]
 extern "C" {
-    fn alert(s: &str);
+    #[wasm_bindgen(js_namespace = console)]
+    fn log(s: &str);
 }
 
 #[wasm_bindgen]
 pub fn greet() {
-    alert("Hello, hello-wasm!");
+    log("Hello, World!");
 }
 
+#[wasm_bindgen]
+pub struct AutocompletionEngine {}
+
+/// Public API exposed via WASM.
+#[wasm_bindgen]
+impl AutocompletionEngine {
+    #[wasm_bindgen(constructor)]
+    pub fn new() {
+        set_panic_hook();
+    }
+
+    #[allow(unused_variables)]
+    #[wasm_bindgen(js_class = AutocompletionEngine, js_name = doStuff)]
+    pub fn do_stuff() {}
+}
+
+#[allow(dead_code)]
 fn main() {
     let code = include_str!("./atom.io.css");
     let mut parser = Parser::new();
