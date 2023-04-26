@@ -1,6 +1,5 @@
 import * as vscode from 'vscode';
-// @ts-expect-error types aren't working right now
-import { greet } from './autocompletion-engine/autocompletion_engine.js';
+import { greet } from '../autocompletion-engine/autocompletion_engine.js';
 
 // This method is called when your extension is activated
 // Your extension is activated the very first time the command is executed
