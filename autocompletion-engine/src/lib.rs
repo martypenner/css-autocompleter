@@ -13,24 +13,23 @@ extern "C" {
 }
 
 #[wasm_bindgen]
-pub fn greet() {
-    log("Hello, World!");
-}
-
-#[wasm_bindgen]
 pub struct AutocompletionEngine {}
 
 /// Public API exposed via WASM.
 #[wasm_bindgen]
 impl AutocompletionEngine {
     #[wasm_bindgen(constructor)]
-    pub fn new() {
+    pub fn new() -> Self {
         set_panic_hook();
+
+        Self {}
     }
 
     #[allow(unused_variables)]
-    #[wasm_bindgen(js_class = AutocompletionEngine, js_name = doStuff)]
-    pub fn do_stuff() {}
+    #[wasm_bindgen(js_name = doStuff)]
+    pub fn do_stuff(&self) {
+        log("doing stuff!");
+    }
 }
 
 #[allow(dead_code)]

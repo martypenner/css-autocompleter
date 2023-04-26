@@ -1,5 +1,5 @@
 import * as vscode from 'vscode';
-import { greet } from '../autocompletion-engine/autocompletion_engine.js';
+import { AutocompletionEngine } from '../autocompletion-engine/autocompletion_engine.js';
 
 // This method is called when your extension is activated
 // Your extension is activated the very first time the command is executed
@@ -17,7 +17,8 @@ export function activate(context: vscode.ExtensionContext) {
     vscode.window.showInformationMessage('Hello World from css-to-go!');
   });
 
-  greet();
+  const autocompletionEngine = new AutocompletionEngine();
+  autocompletionEngine.doStuff();
 
   const provider = vscode.languages.registerCompletionItemProvider(
     'html',
