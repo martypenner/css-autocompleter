@@ -1,5 +1,8 @@
+import * as Parser from 'tree-sitter';
+// @ts-expect-error: no types available
+import * as fs from 'node:fs';
+import CSS from 'tree-sitter-css';
 import * as vscode from 'vscode';
-import { AutocompletionEngine } from '../autocompletion-engine/autocompletion_engine.js';
 
 // This method is called when your extension is activated
 // Your extension is activated the very first time the command is executed
@@ -17,8 +20,9 @@ export function activate(context: vscode.ExtensionContext) {
     vscode.window.showInformationMessage('Hello World from css-to-go!');
   });
 
-  const autocompletionEngine = new AutocompletionEngine();
-  autocompletionEngine.doStuff();
+  // const autocompletionEngine = new AutocompletionEngine();
+  // autocompletionEngine.doStuff();
+  console.log(getCompletions());
 
   const provider = vscode.languages.registerCompletionItemProvider(
     'html',
@@ -63,3 +67,21 @@ export function activate(context: vscode.ExtensionContext) {
 
 // This method is called when your extension is deactivated
 export function deactivate() {}
+
+function getCompletions() {
+  const parser = new Parser();
+  parser.setLanguage(CSS);
+
+  let code = fs.readFileSync('./atom.io.css', 'utf8');
+  let tree = parser.parse(code);
+
+  let query = new Parser.Query(CSS.language, '(class_selector) @class-name');
+  let classes = new Map();
+
+  for (const match of query.matches(tree.rootNode)) {
+    for (const capture of match.captures) {
+      let className = capture.node.text;
+      classes.set(className, []);
+    }
+  }
+}
