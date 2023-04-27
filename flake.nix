@@ -48,6 +48,8 @@
           cargo-watch
           rust-analyzer
 
+          vsce
+
           # nodejs 18
           nodejs
           nodePackages.pnpm
