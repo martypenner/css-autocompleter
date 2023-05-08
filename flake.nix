@@ -52,6 +52,7 @@
 
           # nodejs 18
           nodejs
+          nodePackages.pnpm
 
           exa
           fd
