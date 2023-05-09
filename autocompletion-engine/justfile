@@ -7,6 +7,9 @@ build:
 build-debug:
 	pnpm build:debug && (mkdir "{{OUT_DIR}}" 2>&- >/dev/null || true) && mv index.js index.d.ts *.node "{{OUT_DIR}}"
 
+watch:
+	pnpm watch
+
 test: build
 	pnpm test
 

@@ -22,12 +22,13 @@
     ]
   },
   "scripts": {
-    "vscode:prepublish": "npm run compile",
     "compile": "tsc -p ./",
     "watch": "tsc -watch -p ./",
     "lint": "eslint src --ext ts",
     "fmt": "prettier --write . --ignore-path .gitignore",
-    "test": "node ./out/test/runTest.js"
+    "test": "node ./out/test/runTest.js",
+    "vscode:prepublish": "npm run compile",
+    "package": "echo 'TODO: package using vsce'"
   },
   "devDependencies": {
     "@types/glob": "^8.1.0",
