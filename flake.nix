@@ -35,13 +35,14 @@
       pkgs = import nixpkgs { inherit system overlays; };
     in
     {
-      formatter.x86_64-linux = nixpkgs.legacyPackages.x86_64-linux.nixpkgs-fmt;
+      formatter = pkgs.nixpkgs-fmt;
 
       devShells.default = pkgs.mkShell {
         packages = with pkgs; [
+          # Rust
           rustToolchain
           gnumake
-          openssl
+          openssl # TODO: use rustls instead. Will require messing with features on cargo dependencies
           pkg-config
           cargo-deny
           cargo-edit
