@@ -1,9 +1,8 @@
-clean:
-	rm -rf dist out autocompletion-engine
-
 build:
-	npm run compile
+	pnpm compile
 
 test:
-	npm run test
+	pnpm test
 
+clean:
+	rm -rf dist out autocompletion-engine

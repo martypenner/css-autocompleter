@@ -1,6 +1,6 @@
 import test from "ava";
 
-import { getCompletions } from "../index.js";
+import { getCompletions } from "../dist/index.js";
 
 test("get completions from test css file", (t) => {
   const completions = JSON.parse(getCompletions());

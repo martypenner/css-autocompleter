@@ -23,7 +23,8 @@
   "license": "MIT",
   "devDependencies": {
     "@napi-rs/cli": "^2.15.2",
-    "ava": "^5.1.1"
+    "ava": "^5.1.1",
+    "prettier": "^2.8.8"
   },
   "ava": {
     "timeout": "3m"
@@ -32,6 +33,14 @@
     "node": ">= 16"
   },
   "scripts": {
-    "prepublishOnly": "napi prepublish -t npm"
+    "artifacts": "napi artifacts",
+    "build": "napi build --platform --release",
+    "build:debug": "napi build --platform",
+    "prepublishOnly": "napi prepublish -t npm",
+    "test": "ava",
+    "test:watch": "ava --watch",
+    "fmt": "prettier --write .",
+    "universal": "napi universal",
+    "version": "napi version"
   }
 }

@@ -1,36 +1,34 @@
-# TODO: make this not overwrite existing env var
-export CARGO_FLAGS := --dev
+export CARGO_FLAGS := env_var_or_default("CARGO_FLAGS", "--dev")
+export OUT_DIR := env_var_or_default("OUT_DIR", "dist")
 
-build: require-out-dir
-	npx napi build --platform --release && (mkdir "$OUT_DIR" || true) && mv index.js index.d.ts *.node "$OUT_DIR"
+build:
+	CARGO_FLAGS="{{CARGO_FLAGS}}" pnpm build && (mkdir "{{OUT_DIR}}" 2>&- >/dev/null || true) && mv index.js index.d.ts *.node "{{OUT_DIR}}"
 
 build-debug:
-	npx napi build --platform && (mkdir "$OUT_DIR" || true) && mv index.js index.d.ts *.node "$OUT_DIR"
+	pnpm build:debug && (mkdir "{{OUT_DIR}}" 2>&- >/dev/null || true) && mv index.js index.d.ts *.node "{{OUT_DIR}}"
 
 test: build
-	npx ava
+	pnpm test
 
 test-watch: build
-	npx ava --watch
+	pnpm test:watch
 
 lint:
 	cargo clippy --all-features --all-targets -- -D warnings
 
 fmt:
 	cargo fmt
+	pnpm fmt
 
 clean:
 	cargo clean
+	rm -rf dist
 
 artifacts:
-	npx napi artifacts
+	pnpm artifacts
 
 universal:
-	npx napi universal
+	pnpm universal
 
 version:
-	npx napi version
-
-require-out-dir:
-	#!/usr/bin/env bash
-	test -z $OUT_DIR && echo "OUT_DIR is not defined" && exit 1
+	pnpm version

@@ -4,38 +4,42 @@ test: napi-test js-test
 
 lint: napi-lint js-lint
 
-fmt: napi-fmt js-fmt
+fmt: napi-fmt js-fmt nix-fmt
 
 clean: napi-clean js-clean
 
 # NAPI (autocompletion engine)
 napi-build:
-	$(MAKE) -C autocompletion-engine build OUT_DIR=../vscode-extension/autocompletion-engine
+	OUT_DIR=../vscode-extension/autocompletion-engine just -f autocompletion-engine/justfile build
 
 napi-test:
-	$(MAKE) -C autocompletion-engine test
+	just -f autocompletion-engine/justfile test
 
 napi-lint:
-	$(MAKE) -C autocompletion-engine lint
+	just -f autocompletion-engine/justfile lint
 
 napi-fmt:
-	$(MAKE) -C autocompletion-engine fmt
+	just -f autocompletion-engine/justfile fmt
 
 napi-clean:
-	$(MAKE) -C autocompletion-engine clean
+	just -f autocompletion-engine/justfile clean
 
 # JS
 js-build:
-	$(MAKE) -C vscode-extension build
+	just -f vscode-extension/justfile build
 
 js-test:
-	$(MAKE) -C vscode-extension test
+	just -f vscode-extension/justfile test
 
 js-lint:
-	$(MAKE) -C vscode-extension lint
+	just -f vscode-extension/justfile lint
 
 js-fmt:
-	$(MAKE) -C vscode-extension fmt
+	just -f vscode-extension/justfile fmt
 
 js-clean:
-	$(MAKE) -C vscode-extension clean
+	just -f vscode-extension/justfile clean
+
+# Nix
+nix-fmt:
+	nix fmt
