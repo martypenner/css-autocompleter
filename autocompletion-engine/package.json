@@ -39,7 +39,7 @@
     "prepublishOnly": "napi prepublish -t npm",
     "test": "ava",
     "test:watch": "ava --watch",
-    "fmt": "prettier --write .",
+    "fmt": "prettier --write . --ignore-path .gitignore",
     "universal": "napi universal",
     "version": "napi version"
   }

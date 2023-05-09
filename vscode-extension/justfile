@@ -1,8 +1,17 @@
 build:
 	pnpm compile
 
-test:
+watch:
+	pnpm watch
+
+test: lint
 	pnpm test
+
+lint:
+	pnpm lint
+
+fmt:
+	pnpm fmt
 
 clean:
 	rm -rf dist out autocompletion-engine

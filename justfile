@@ -1,12 +1,12 @@
-build: napi-build js-build
+build: napi-build extension-build
 
-test: napi-test js-test
+test: napi-test extension-test
 
-lint: napi-lint js-lint
+lint: napi-lint extension-lint
 
-fmt: napi-fmt js-fmt nix-fmt
+fmt: napi-fmt extension-fmt nix-fmt
 
-clean: napi-clean js-clean
+clean: napi-clean extension-clean
 
 # NAPI (autocompletion engine)
 napi-build:
@@ -25,19 +25,19 @@ napi-clean:
 	just -f autocompletion-engine/justfile clean
 
 # JS
-js-build:
+extension-build:
 	just -f vscode-extension/justfile build
 
-js-test:
+extension-test:
 	just -f vscode-extension/justfile test
 
-js-lint:
+extension-lint:
 	just -f vscode-extension/justfile lint
 
-js-fmt:
+extension-fmt:
 	just -f vscode-extension/justfile fmt
 
-js-clean:
+extension-clean:
 	just -f vscode-extension/justfile clean
 
 # Nix
