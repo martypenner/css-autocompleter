@@ -1,8 +1,5 @@
-import * as Parser from 'tree-sitter';
-// @ts-expect-error: no types available
-import * as fs from 'node:fs';
-import CSS from 'tree-sitter-css';
-import * as vscode from 'vscode';
+import * as vscode from "vscode";
+import { getCompletions } from "../autocompletion-engine";
 
 // This method is called when your extension is activated
 // Your extension is activated the very first time the command is executed
@@ -14,20 +11,24 @@ export function activate(context: vscode.ExtensionContext) {
   // The command has been defined in the package.json file
   // Now provide the implementation of the command with registerCommand
   // The commandId parameter must match the command field in package.json
-  let disposable = vscode.commands.registerCommand('css-to-go.helloWorld', () => {
-    // The code you place here will be executed every time your command is executed
-    // Display a message box to the user
-    vscode.window.showInformationMessage('Hello World from css-to-go!');
-  });
+  let disposable = vscode.commands.registerCommand(
+    "css-to-go.helloWorld",
+    () => {
+      // The code you place here will be executed every time your command is executed
+      // Display a message box to the user
+      vscode.window.showInformationMessage("Hello World from css-to-go!");
+    }
+  );
 
-  // const autocompletionEngine = new AutocompletionEngine();
-  // autocompletionEngine.doStuff();
   console.log(getCompletions());
 
   const provider = vscode.languages.registerCompletionItemProvider(
-    'html',
+    "html",
     {
-      provideCompletionItems(document: vscode.TextDocument, position: vscode.Position) {
+      provideCompletionItems(
+        document: vscode.TextDocument,
+        position: vscode.Position
+      ) {
         // Get the entire line text and search for `class=""`. We only want to
         // trigger completions inside of that and nowhere else. I really wish we
         // didn't have to resort to a regex, but setting up embedded languages
@@ -44,16 +45,17 @@ export function activate(context: vscode.ExtensionContext) {
           }
 
           const isWithinRange =
-            position.character >= match.index && position.character <= match.index + match[0].length;
+            position.character >= match.index &&
+            position.character <= match.index + match[0].length;
           if (!isWithinRange) {
             return undefined;
           }
         }
 
         return [
-          new vscode.CompletionItem('log', vscode.CompletionItemKind.Method),
-          new vscode.CompletionItem('warn', vscode.CompletionItemKind.Method),
-          new vscode.CompletionItem('error', vscode.CompletionItemKind.Method),
+          new vscode.CompletionItem("log", vscode.CompletionItemKind.Method),
+          new vscode.CompletionItem("warn", vscode.CompletionItemKind.Method),
+          new vscode.CompletionItem("error", vscode.CompletionItemKind.Method),
         ];
       },
     },
@@ -67,21 +69,3 @@ export function activate(context: vscode.ExtensionContext) {
 
 // This method is called when your extension is deactivated
 export function deactivate() {}
-
-function getCompletions() {
-  const parser = new Parser();
-  parser.setLanguage(CSS);
-
-  let code = fs.readFileSync('./atom.io.css', 'utf8');
-  let tree = parser.parse(code);
-
-  let query = new Parser.Query(CSS.language, '(class_selector) @class-name');
-  let classes = new Map();
-
-  for (const match of query.matches(tree.rootNode)) {
-    for (const capture of match.captures) {
-      let className = capture.node.text;
-      classes.set(className, []);
-    }
-  }
-}

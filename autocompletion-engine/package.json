@@ -1,0 +1,37 @@
+{
+  "name": "autocompletion-engine",
+  "version": "0.0.0",
+  "main": "index.js",
+  "types": "index.d.ts",
+  "napi": {
+    "name": "napi-rs",
+    "triples": {
+      "defaults": true,
+      "additional": [
+        "aarch64-apple-darwin",
+        "aarch64-unknown-linux-gnu",
+        "aarch64-unknown-linux-musl",
+        "armv7-unknown-linux-gnueabihf",
+        "x86_64-pc-windows-msvc",
+        "x86_64-unknown-linux-musl",
+        "x86_64-unknown-linux-gnu",
+        "universal-apple-darwin"
+      ]
+    },
+    "npmClient": "pnpm"
+  },
+  "license": "MIT",
+  "devDependencies": {
+    "@napi-rs/cli": "^2.15.2",
+    "ava": "^5.1.1"
+  },
+  "ava": {
+    "timeout": "3m"
+  },
+  "engines": {
+    "node": ">= 16"
+  },
+  "scripts": {
+    "prepublishOnly": "napi prepublish -t npm"
+  }
+}

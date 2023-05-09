@@ -47,8 +47,6 @@
           cargo-edit
           cargo-watch
           rust-analyzer
-					wasm-pack
-					wasm-bindgen-cli
 
           # nodejs 18
           nodejs

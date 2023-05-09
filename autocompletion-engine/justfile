@@ -1,0 +1,36 @@
+# TODO: make this not overwrite existing env var
+export CARGO_FLAGS := --dev
+
+build: require-out-dir
+	npx napi build --platform --release && (mkdir "$OUT_DIR" || true) && mv index.js index.d.ts *.node "$OUT_DIR"
+
+build-debug:
+	npx napi build --platform && (mkdir "$OUT_DIR" || true) && mv index.js index.d.ts *.node "$OUT_DIR"
+
+test: build
+	npx ava
+
+test-watch: build
+	npx ava --watch
+
+lint:
+	cargo clippy --all-features --all-targets -- -D warnings
+
+fmt:
+	cargo fmt
+
+clean:
+	cargo clean
+
+artifacts:
+	npx napi artifacts
+
+universal:
+	npx napi universal
+
+version:
+	npx napi version
+
+require-out-dir:
+	#!/usr/bin/env bash
+	test -z $OUT_DIR && echo "OUT_DIR is not defined" && exit 1
