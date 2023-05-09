@@ -20,8 +20,6 @@ export function activate(context: vscode.ExtensionContext) {
     }
   );
 
-  console.log(getCompletions());
-
   const provider = vscode.languages.registerCompletionItemProvider(
     "html",
     {
@@ -52,11 +50,19 @@ export function activate(context: vscode.ExtensionContext) {
           }
         }
 
+        const completions = Object.keys(JSON.parse(getCompletions())).map(
+          (completion) =>
+            new vscode.CompletionItem(
+              completion,
+              vscode.CompletionItemKind.Property
+            )
+        );
+
         return [
           new vscode.CompletionItem("log", vscode.CompletionItemKind.Method),
           new vscode.CompletionItem("warn", vscode.CompletionItemKind.Method),
           new vscode.CompletionItem("error", vscode.CompletionItemKind.Method),
-        ];
+        ].concat(completions);
       },
     },
     `'`,
