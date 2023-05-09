@@ -41,7 +41,6 @@
         packages = with pkgs; [
           # Rust
           rustToolchain
-          gnumake
           openssl # TODO: use rustls instead. Will require messing with features on cargo dependencies
           pkg-config
           cargo-deny
@@ -55,6 +54,7 @@
           nodejs
           nodePackages.pnpm
 
+          just
           exa
           fd
           fzf
@@ -64,6 +64,7 @@
           alias ls="exa"
           alias l="ls -lh"
           alias find="fd"
+          alias make="just"
           ${pkgs.rustToolchain}/bin/cargo --version
         '';
       };
