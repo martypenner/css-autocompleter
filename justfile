@@ -1,3 +1,6 @@
+default:
+  @just --list
+
 build: extension-clean napi-build extension-build
 
 watch: napi-watch extension-watch
