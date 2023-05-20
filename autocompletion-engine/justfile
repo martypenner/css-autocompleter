@@ -11,6 +11,7 @@ watch:
 	pnpm watch
 
 test: build
+	CARGO_FLAGS="{{CARGO_FLAGS}}" cargo test
 	pnpm test
 
 test-watch: build

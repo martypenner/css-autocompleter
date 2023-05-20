@@ -8,7 +8,12 @@ use tree_sitter::{Parser, Query, QueryCursor};
 type Completions = HashMap<String, Vec<String>>;
 
 #[napi]
-pub fn get_completions() -> String {
+pub fn get_completions_as_string() -> String {
+  let classes = get_completions();
+  serde_json::to_string(&classes).expect("Could not convert class hashmap to string")
+}
+
+fn get_completions() -> Completions {
   let code = include_str!("./atom.io.css");
   let mut parser = Parser::new();
   parser
@@ -41,5 +46,23 @@ pub fn get_completions() -> String {
   }
 
   dbg!(&classes);
-  serde_json::to_string(&classes).expect("Could not convert class hashmap to string")
+  classes
+}
+
+#[cfg(test)]
+mod tests {
+  use super::*;
+
+  #[test]
+  fn it_works() {
+    let mut classes: Completions = HashMap::new();
+    classes.insert(String::from("wrapper"), vec![]);
+    classes.insert(String::from("focus"), vec![]);
+    classes.insert(String::from("focused"), vec![]);
+    classes.insert(String::from("input-contrast"), vec![]);
+    classes.insert(String::from("search-page-label"), vec![]);
+    classes.insert(String::from("drag-and-drop"), vec![]);
+
+    assert_eq!(get_completions(), classes);
+  }
 }

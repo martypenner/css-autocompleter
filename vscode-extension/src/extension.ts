@@ -1,5 +1,5 @@
 import * as vscode from 'vscode';
-import { getCompletions } from '../autocompletion-engine';
+import { getCompletionsAsString } from '../autocompletion-engine';
 
 // This method is called when your extension is activated
 // Your extension is activated the very first time the command is executed
@@ -44,7 +44,8 @@ export function activate(context: vscode.ExtensionContext) {
           }
         }
 
-        const completions = Object.keys(JSON.parse(getCompletions())).map(
+        // TODO: cache this
+        const completions = Object.keys(JSON.parse(getCompletionsAsString())).map(
           (completion) => new vscode.CompletionItem(completion, vscode.CompletionItemKind.Property)
         );
 
