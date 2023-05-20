@@ -1,5 +1,5 @@
-import * as vscode from "vscode";
-import { getCompletions } from "../autocompletion-engine";
+import * as vscode from 'vscode';
+import { getCompletions } from '../autocompletion-engine';
 
 // This method is called when your extension is activated
 // Your extension is activated the very first time the command is executed
@@ -11,22 +11,16 @@ export function activate(context: vscode.ExtensionContext) {
   // The command has been defined in the package.json file
   // Now provide the implementation of the command with registerCommand
   // The commandId parameter must match the command field in package.json
-  let disposable = vscode.commands.registerCommand(
-    "css-to-go.helloWorld",
-    () => {
-      // The code you place here will be executed every time your command is executed
-      // Display a message box to the user
-      vscode.window.showInformationMessage("Hello World from css-to-go!");
-    }
-  );
+  const disposable = vscode.commands.registerCommand('css-to-go.helloWorld', () => {
+    // The code you place here will be executed every time your command is executed
+    // Display a message box to the user
+    vscode.window.showInformationMessage('Hello World from css-to-go!');
+  });
 
   const provider = vscode.languages.registerCompletionItemProvider(
-    "html",
+    'html',
     {
-      provideCompletionItems(
-        document: vscode.TextDocument,
-        position: vscode.Position
-      ) {
+      provideCompletionItems(document: vscode.TextDocument, position: vscode.Position) {
         // Get the entire line text and search for `class=""`. We only want to
         // trigger completions inside of that and nowhere else. I really wish we
         // didn't have to resort to a regex, but setting up embedded languages
@@ -51,23 +45,15 @@ export function activate(context: vscode.ExtensionContext) {
         }
 
         const completions = Object.keys(JSON.parse(getCompletions())).map(
-          (completion) =>
-            new vscode.CompletionItem(
-              completion,
-              vscode.CompletionItemKind.Property
-            )
+          (completion) => new vscode.CompletionItem(completion, vscode.CompletionItemKind.Property)
         );
 
-        return [
-          new vscode.CompletionItem("log", vscode.CompletionItemKind.Method),
-          new vscode.CompletionItem("warn", vscode.CompletionItemKind.Method),
-          new vscode.CompletionItem("error", vscode.CompletionItemKind.Method),
-        ].concat(completions);
+        return completions;
       },
     },
-    `'`,
-    `"`,
-    ` `
+    "'",
+    '"',
+    ' '
   );
 
   context.subscriptions.push(disposable, provider);
