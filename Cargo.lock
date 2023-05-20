@@ -18,6 +18,7 @@ dependencies = [
  "napi",
  "napi-build",
  "napi-derive",
+ "regex",
  "serde_json",
  "tree-sitter",
  "tree-sitter-css",

@@ -25,6 +25,8 @@ pub fn get_completions() -> String {
   let matches = query_cursor.matches(&query, tree.root_node(), code.as_bytes());
   let mut classes: Completions = HashMap::new();
 
+  let regex = regex::Regex::new(r"^\.").expect("Could not create regex");
+
   for each_match in matches {
     for capture in each_match.captures {
       let class_name = capture
@@ -34,7 +36,7 @@ pub fn get_completions() -> String {
         .to_string();
       // let _existing = classes.get(class_name);
       // classes.insert(class_name, existing.unwrap_or_default());
-      classes.insert(class_name, vec![]);
+      classes.insert(regex.replace(&class_name, "").to_string(), vec![]);
     }
   }
 
