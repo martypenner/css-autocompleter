@@ -10,11 +10,11 @@ build-debug:
 watch:
 	pnpm watch
 
-test: build
+test:
 	CARGO_FLAGS="{{CARGO_FLAGS}}" cargo test
 	pnpm test
 
-test-watch: build
+test-watch:
 	pnpm test:watch
 
 lint:
