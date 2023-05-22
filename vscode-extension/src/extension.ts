@@ -47,9 +47,10 @@ export function activate(context: vscode.ExtensionContext) {
         // TODO: cache this. On the other hand, tree-sitter claims to be able to
         // re-parse an entire file on every keystroke. Maybe it doesn't matter?
         // But we might have many CSS files to parse, and those probably won't
-        // change much. So maybe we use a file watches instead.
-        const completions = Object.keys(JSON.parse(getCompletionsAsString())).map(
-          (completion) => new vscode.CompletionItem(completion, vscode.CompletionItemKind.Property)
+        // change much. So maybe we use a file watchers instead.
+        const rawCompletions = Object.keys(JSON.parse(getCompletionsAsString()));
+        const completions = rawCompletions.map(
+          (completion) => new vscode.CompletionItem(completion, vscode.CompletionItemKind.Constant)
         );
 
         return completions;
