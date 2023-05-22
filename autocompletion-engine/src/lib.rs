@@ -23,14 +23,12 @@ fn get_completions() -> Completions {
 
   let query = Query::new(
     tree_sitter_css::language(),
-    r#"(class_selector) @class-name"#,
+    r#"(class_selector (class_name) @class-name)"#,
   )
   .expect("Could not create tree sitter query");
   let mut query_cursor = QueryCursor::new();
   let matches = query_cursor.matches(&query, tree.root_node(), code.as_bytes());
   let mut classes: Completions = HashMap::new();
-
-  let regex = regex::Regex::new(r"^\.").expect("Could not create regex");
 
   for each_match in matches {
     for capture in each_match.captures {
@@ -41,7 +39,7 @@ fn get_completions() -> Completions {
         .to_string();
       // let _existing = classes.get(class_name);
       // classes.insert(class_name, existing.unwrap_or_default());
-      classes.insert(regex.replace(&class_name, "").to_string(), vec![]);
+      classes.insert(class_name, vec![]);
     }
   }
 
