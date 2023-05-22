@@ -49,9 +49,28 @@ export function activate(context: vscode.ExtensionContext) {
         // But we might have many CSS files to parse, and those probably won't
         // change much. So maybe we use a file watchers instead.
         const rawCompletions = Object.keys(JSON.parse(getCompletionsAsString()));
-        const completions = rawCompletions.map(
-          (completion) => new vscode.CompletionItem(completion, vscode.CompletionItemKind.Constant)
-        );
+        const completions = rawCompletions.map((rawCompletion) => {
+          const completion = new vscode.CompletionItem(
+            rawCompletion,
+            vscode.CompletionItemKind.Constant
+          );
+          completion.documentation = new vscode.MarkdownString(`
+hi there!
+I see you're reading this. that's cool.
+
+good **on** *ya*.
+
+\`\`\`css
+input.foo {
+  border: 1px solid red;
+}
+\`\`\`
+
+<h3>do it</h3>
+### hi
+`);
+          return completion;
+        });
 
         return completions;
       },
