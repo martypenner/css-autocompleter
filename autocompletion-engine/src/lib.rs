@@ -14,15 +14,11 @@ pub fn get_completions_as_string() -> String {
 
 type Completions = HashMap<ClassName, RuleSet>;
 type IntermediateCompletions = HashMap<ClassName, RuleSetMap>;
-
-type RuleSetMap = HashMap<RuleSetId, HelpDoc>;
-
 type ClassName = String;
-
 type RuleSet = String;
 
+type RuleSetMap = HashMap<RuleSetId, HelpDoc>;
 type RuleSetId = usize;
-
 type HelpDoc = String;
 
 fn get_completions() -> Completions {
