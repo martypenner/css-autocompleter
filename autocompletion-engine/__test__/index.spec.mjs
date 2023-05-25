@@ -1,9 +1,11 @@
 import test from "ava";
 
-import { getCompletionsAsString } from "../dist/index.js";
+import { getCompletionsForFilesAsString } from "../dist/index.js";
 
 test("get completions from test css file", (t) => {
-  const completions = JSON.parse(getCompletionsAsString());
+  const completions = JSON.parse(
+    getCompletionsForFilesAsString("./__test__/test.atom.io.css")
+  );
   // Strip surrounding whitespace from each rule set.
   for (const [className, ruleSet] of Object.entries(completions)) {
     completions[className] = ruleSet.trim();

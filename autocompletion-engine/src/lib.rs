@@ -1,14 +1,16 @@
 #[macro_use]
 extern crate napi_derive;
 
-use std::{collections::HashMap, println};
+use std::{collections::HashMap, fs::read_to_string, println};
 
 use itertools::Itertools;
 use tree_sitter::{Parser, Query, QueryCursor};
 
 #[napi]
-pub fn get_completions_as_string() -> String {
-  let classes = get_completions();
+pub fn get_completions_for_files_as_string(path: String) -> String {
+  dbg!(&path);
+  let code = read_to_string(path).expect("Could not read file");
+  let classes = get_completions(code.as_str());
   serde_json::to_string(&classes).expect("Could not convert class hashmap to string")
 }
 
@@ -21,9 +23,12 @@ type RuleSetMap = HashMap<RuleSetId, HelpDoc>;
 type RuleSetId = usize;
 type HelpDoc = String;
 
+// TODO: cache this. On the other hand, tree-sitter claims to be able to
+// re-parse an entire file on every keystroke. Maybe it doesn't matter?
+// But we might have many CSS files to parse, and those probably won't
+// change much. So maybe we use a file watchers instead.
 // TODO: split this thing up for a bit more readability
-fn get_completions() -> Completions {
-  let code = include_str!("./test.atom.io.css");
+fn get_completions(code: &str) -> Completions {
   let mut parser = Parser::new();
   parser
     .set_language(tree_sitter_css::language())
@@ -127,7 +132,8 @@ mod tests {
 
   #[test]
   fn it_works() {
-    let actual = get_completions();
+    let code = include_str!("../__test__/test.atom.io.css");
+    let actual = get_completions(code);
     let expected = [
       (
         "drag-and-drop",

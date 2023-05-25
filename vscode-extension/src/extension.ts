@@ -1,5 +1,5 @@
 import * as vscode from 'vscode';
-import { getCompletionsAsString } from '../autocompletion-engine';
+import { getCompletionsForFilesAsString } from '../autocompletion-engine';
 
 // This method is called when your extension is activated
 // Your extension is activated the very first time the command is executed
@@ -44,11 +44,11 @@ export function activate(context: vscode.ExtensionContext) {
           }
         }
 
-        // TODO: cache this. On the other hand, tree-sitter claims to be able to
-        // re-parse an entire file on every keystroke. Maybe it doesn't matter?
-        // But we might have many CSS files to parse, and those probably won't
-        // change much. So maybe we use a file watchers instead.
-        const rawCompletions: Completions = JSON.parse(getCompletionsAsString());
+        const rawCompletions: Completions = JSON.parse(
+          getCompletionsForFilesAsString(
+            require.resolve('./autocompletion-engine/__test__/test.atom.io.css')
+          )
+        );
         const completions = Object.entries(rawCompletions).map(([className, ruleSet]) => {
           const completion = new vscode.CompletionItem(
             className,
