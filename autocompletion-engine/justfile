@@ -10,11 +10,18 @@ build-debug:
 watch:
 	pnpm watch
 
-test:
+test: test-rust test-napi
+
+test-rust:
 	CARGO_FLAGS="{{CARGO_FLAGS}}" cargo test
+
+test-napi:
+	# Need a full JS build for NAPI bindings.
+	CARGO_FLAGS="{{CARGO_FLAGS}}" just build-debug
 	pnpm test
 
 test-watch:
+	# CARGO_FLAGS="{{CARGO_FLAGS}}" cargo watch test
 	pnpm test:watch
 
 lint:
