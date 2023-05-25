@@ -21,6 +21,7 @@ type RuleSetMap = HashMap<RuleSetId, HelpDoc>;
 type RuleSetId = usize;
 type HelpDoc = String;
 
+// TODO: split this thing up for a bit more readability
 fn get_completions() -> Completions {
   let code = include_str!("./test.atom.io.css");
   let mut parser = Parser::new();
