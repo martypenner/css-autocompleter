@@ -48,27 +48,14 @@ export function activate(context: vscode.ExtensionContext) {
         // re-parse an entire file on every keystroke. Maybe it doesn't matter?
         // But we might have many CSS files to parse, and those probably won't
         // change much. So maybe we use a file watchers instead.
-        const rawCompletions = Object.keys(JSON.parse(getCompletionsAsString()));
-        const completions = rawCompletions.map((rawCompletion) => {
+        const rawCompletions: Completions = JSON.parse(getCompletionsAsString());
+        const completions = Object.entries(rawCompletions).map(([className, ruleSet]) => {
           const completion = new vscode.CompletionItem(
-            rawCompletion,
+            className,
             vscode.CompletionItemKind.Constant
           );
-          completion.documentation = new vscode.MarkdownString(`
-hi there!
-I see you're reading this. that's cool.
+          completion.documentation = getDocsForRuleSet(ruleSet);
 
-good **on** *ya*.
-
-\`\`\`css
-input.foo {
-  border: 1px solid red;
-}
-\`\`\`
-
-<h3>do it</h3>
-### hi
-`);
           return completion;
         });
 
@@ -85,3 +72,17 @@ input.foo {
 
 // This method is called when your extension is deactivated
 export function deactivate() {}
+
+function getDocsForRuleSet(ruleSet: string): vscode.MarkdownString {
+  return new vscode.MarkdownString(`
+${CSS_MARKER}css
+${ruleSet}
+${CSS_MARKER}
+`);
+}
+
+const CSS_MARKER = '```';
+
+type Completions = {
+  [className: string]: string;
+};

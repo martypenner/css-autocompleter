@@ -2,6 +2,9 @@
   width: 860px !important;
   padding: 0;
 }
+#peek2 .wrapper {
+  border: 1px solid red;
+}
 fieldset {
   padding: 0;
   margin: 0;
