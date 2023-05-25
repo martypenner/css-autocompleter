@@ -23,7 +23,7 @@
   },
   "scripts": {
     "compile": "tsc -p ./",
-    "watch": "tsc -watch -p ./",
+    "watch": "echo 'Be sure to build the NAPI portion before iterating on the extension' && tsc -watch -p ./",
     "lint": "eslint src --ext ts",
     "fmt": "prettier --write . --ignore-path .gitignore",
     "test": "node ./out/test/runTest.js",
