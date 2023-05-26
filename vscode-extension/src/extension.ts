@@ -1,26 +1,40 @@
 import * as vscode from 'vscode';
 import { getCompletionsForFilesAsString } from '../autocompletion-engine';
 
-// This method is called when your extension is activated
-// Your extension is activated the very first time the command is executed
-export function activate(context: vscode.ExtensionContext) {
-  // Use the console to output diagnostic information (console.log) and errors (console.error)
-  // This line of code will only be executed once when your extension is activated
-  console.log('Congratulations, your extension "css-to-go" is now active!');
+const configKey = 'css-to-go.filesList';
 
-  // The command has been defined in the package.json file
-  // Now provide the implementation of the command with registerCommand
-  // The commandId parameter must match the command field in package.json
-  const disposable = vscode.commands.registerCommand('css-to-go.helloWorld', () => {
-    // The code you place here will be executed every time your command is executed
-    // Display a message box to the user
-    vscode.window.showInformationMessage('Hello World from css-to-go!');
+export function activate(context: vscode.ExtensionContext) {
+  let config = vscode.workspace.getConfiguration();
+  let listOfFilesToParse = getFilesToParse();
+
+  let completions: vscode.CompletionItem[] | null = null;
+
+  const disposable = vscode.commands.registerCommand(
+    'css-to-go.addCssToAutocomplete',
+    async (file) => {
+      let newList = ((config.get(configKey) ?? []) as string[]).concat(file.path);
+      await config.update(configKey, newList);
+    }
+  );
+  // TODO : on workspace change, reload the completions
+  // TODO : on files change, reload the completions
+  vscode.workspace.onDidChangeConfiguration((event) => {
+    if (!event.affectsConfiguration(configKey)) {
+      return;
+    }
+
+    completions = null;
+    listOfFilesToParse = getFilesToParse();
   });
 
   const provider = vscode.languages.registerCompletionItemProvider(
     'html',
     {
       provideCompletionItems(document: vscode.TextDocument, position: vscode.Position) {
+        if (listOfFilesToParse.size === 0) {
+          return;
+        }
+
         // Get the entire line text and search for `class=""`. We only want to
         // trigger completions inside of that and nowhere else. I really wish we
         // didn't have to resort to a regex, but setting up embedded languages
@@ -44,20 +58,25 @@ export function activate(context: vscode.ExtensionContext) {
           }
         }
 
-        const rawCompletions: Completions = JSON.parse(
-          getCompletionsForFilesAsString(
-            require.resolve('./autocompletion-engine/__test__/test.atom.io.css')
-          )
-        );
-        const completions = Object.entries(rawCompletions).map(([className, ruleSet]) => {
-          const completion = new vscode.CompletionItem(
-            className,
-            vscode.CompletionItemKind.Constant
-          );
-          completion.documentation = getDocsForRuleSet(ruleSet);
+        // eslint-disable-next-line eqeqeq
+        if (completions == null) {
+          completions = [];
 
-          return completion;
-        });
+          for (const file of listOfFilesToParse.values()) {
+            const rawCompletions: Completions = JSON.parse(getCompletionsForFilesAsString(file));
+            completions = completions.concat(
+              Object.entries(rawCompletions).map(([className, ruleSet]) => {
+                const completion = new vscode.CompletionItem(
+                  className,
+                  vscode.CompletionItemKind.Constant
+                );
+                completion.documentation = getDocsForRuleSet(ruleSet);
+
+                return completion;
+              })
+            );
+          }
+        }
 
         return completions;
       },
@@ -72,6 +91,13 @@ export function activate(context: vscode.ExtensionContext) {
 
 // This method is called when your extension is deactivated
 export function deactivate() {}
+
+function getFilesToParse(): Set<string> {
+  let config = vscode.workspace.getConfiguration();
+  let listOfFilesToParse = (config.get(configKey) ?? []) as string[];
+
+  return new Set(listOfFilesToParse);
+}
 
 function getDocsForRuleSet(ruleSet: string): vscode.MarkdownString {
   return new vscode.MarkdownString(`

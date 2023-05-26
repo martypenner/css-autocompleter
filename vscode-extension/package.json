@@ -16,10 +16,33 @@
   "contributes": {
     "commands": [
       {
-        "command": "css-to-go.helloWorld",
-        "title": "Hello World"
+        "command": "css-to-go.addCssToAutocomplete",
+        "title": "Add CSS file to Autocomplete"
       }
-    ]
+    ],
+    "menus": {
+      "explorer/context": [
+        {
+          "command": "css-to-go.addCssToAutocomplete",
+          "when": "resourceExtname == .css",
+          "group": "2_workspace"
+        }
+      ]
+    },
+    "configuration": {
+      "title": "List of CSS files to provide class autocompletion for",
+      "properties": {
+        "css-to-go.filesList": {
+          "type": "array",
+          "scope": "machine-overridable",
+          "items": {
+            "type": "string"
+          },
+          "default": [],
+          "description": "These CSS files will have their classes made available for autocompletion."
+        }
+      }
+    }
   },
   "scripts": {
     "compile": "tsc -p ./",
