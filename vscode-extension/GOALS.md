@@ -1,0 +1,7 @@
+- aims to be more performant than https://github.com/zignd/HTML-CSS-Class-Completion
+  - no multiple loops over the same items to filter and map
+  - no deallocing of heap entries just created (common in js loops)
+- supa fast
+- maintained ;)
+- won't destroy your computer
+- simple
