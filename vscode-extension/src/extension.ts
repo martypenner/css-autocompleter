@@ -4,15 +4,16 @@ import { getCompletionsForFilesAsString } from '../autocompletion-engine';
 const configKey = 'css-to-go.filesList';
 
 export function activate(context: vscode.ExtensionContext) {
-  let config = vscode.workspace.getConfiguration();
+  const config = vscode.workspace.getConfiguration();
+  const engine = new Autocompletions(config);
 
-  let completions: vscode.CompletionItem[] | null = null;
-  let listOfFilesToParse = new Set(getFilesToParse());
+  const initialFiles = Array.from(new Set(getFilesToParseFromConfig(config)));
+  engine.refreshCompletionForFiles(initialFiles);
 
   const disposable = vscode.commands.registerCommand(
     'css-to-go.addCssToAutocomplete',
     async (file) => {
-      let newList = ((config.get(configKey) ?? []) as string[]).concat(file.path);
+      const newList = Array.from(new Set(getFilesToParseFromConfig(config).concat(file.path)));
       await config.update(configKey, newList);
     }
   );
@@ -23,17 +24,16 @@ export function activate(context: vscode.ExtensionContext) {
       return;
     }
 
-    completions = null;
-    listOfFilesToParse = new Set(getFilesToParse());
+    // TODO: this isn't picking up the changes properly
+    const filesToParse = getFilesToParseFromConfig(config);
+    engine.setFilesToParse(filesToParse);
   });
 
   const provider = vscode.languages.registerCompletionItemProvider(
     'html',
     {
       provideCompletionItems(document: vscode.TextDocument, position: vscode.Position) {
-        if (listOfFilesToParse.size === 0) {
-          return;
-        }
+        // TODO: don't run if there are no completions
 
         // Get the entire line text and search for `class=""`. We only want to
         // trigger completions inside of that and nowhere else. I really wish we
@@ -58,25 +58,8 @@ export function activate(context: vscode.ExtensionContext) {
           }
         }
 
-        // eslint-disable-next-line eqeqeq
-        if (completions == null) {
-          completions = [];
-
-          const rawCompletions: Completions = JSON.parse(
-            getCompletionsForFilesAsString(Array.from(listOfFilesToParse.values()))
-          );
-          completions = completions.concat(
-            Object.entries(rawCompletions).map(([className, ruleSet]) => {
-              const completion = new vscode.CompletionItem(
-                className,
-                vscode.CompletionItemKind.Constant
-              );
-              completion.documentation = getDocsForRuleSet(ruleSet);
-
-              return completion;
-            })
-          );
-        }
+        // TODO: get initial completions
+        const completions = engine.cachedCompletions;
 
         return completions;
       },
@@ -92,23 +75,83 @@ export function activate(context: vscode.ExtensionContext) {
 // This method is called when your extension is deactivated
 export function deactivate() {}
 
-function getFilesToParse(): string[] {
-  let config = vscode.workspace.getConfiguration();
-  let listOfFilesToParse = (config.get(configKey) ?? []) as string[];
+type FilePath = string;
+type Completion = string;
+type Completions = {
+  [className: string]: Completion;
+};
 
-  return listOfFilesToParse;
-}
+// TODO: we're currently structured around classnames. This is nice for looping and
+// creating the final completions list, but makes it harder to invalidate the cache
+// for a single file. Need to rethink this.
+class Autocompletions {
+  private _config = vscode.workspace.getConfiguration();
+  private _cachedCompletions: vscode.CompletionItem[] = [];
 
-function getDocsForRuleSet(ruleSet: string): vscode.MarkdownString {
-  return new vscode.MarkdownString(`
+  constructor(config: vscode.WorkspaceConfiguration) {
+    this._config = config;
+  }
+
+  get cachedCompletions() {
+    return this._cachedCompletions;
+  }
+
+  // Note that currently, this resets ALL completions.
+  // TODO: don't do that ;). Will be more possible once we restructure around file maps.
+  refreshCompletionForFiles(files: string[]) {
+    const rawCompletions: Completions = JSON.parse(getCompletionsForFilesAsString(files));
+    this._cachedCompletions = Object.entries(rawCompletions).map(([className, ruleSet]) => {
+      const completion = new vscode.CompletionItem(className, vscode.CompletionItemKind.Constant);
+      completion.documentation = this.getDocsForRuleSet(ruleSet);
+
+      return completion;
+    });
+  }
+
+  setFilesToParse(filesToParse: string[]) {
+    // Remove completions that are no longer present in the file list.
+    // TODO: I don't like this double conversion
+    const files = Array.from(new Set(filesToParse));
+    this.refreshCompletionForFiles(files);
+  }
+
+  // TODO:
+  private setupFileWatchers() {
+    // let filesAndTheirWatchers = new Map();
+    // for (const file of filesToParse) {
+    //   if (filesAndTheirWatchers.has(file)) {
+    //     console.warn(`Duplicate file found in file list: ${file}`);
+    //     continue;
+    //   }
+    //
+    //   const watcher = vscode.workspace.createFileSystemWatcher(
+    //     new vscode.RelativePattern(path.dirname(file), path.basename(file))
+    //   );
+    //
+    //   watcher.onDidChange((uri) => {});
+    //   watcher.onDidCreate((uri) => {});
+    //   watcher.onDidDelete((uri) => {
+    //     watcher.dispose();
+    //   });
+    //
+    //   filesAndTheirWatchers.set(file, watcher);
+    // }
+  }
+
+  private getDocsForRuleSet(ruleSet: string): vscode.MarkdownString {
+    return new vscode.MarkdownString(`
 ${CSS_MARKER}css
 ${ruleSet}
 ${CSS_MARKER}
 `);
+  }
 }
 
-const CSS_MARKER = '```';
+// TODO: gaurd against invalid values
+function getFilesToParseFromConfig(config: vscode.WorkspaceConfiguration) {
+  return config.get(configKey, []) as string[];
+}
 
-type Completions = {
-  [className: string]: string;
-};
+// function getWatcherForFiles(files: string[]): Map<string, vscode.FileSystemWatcher> {}
+
+const CSS_MARKER = '```';
