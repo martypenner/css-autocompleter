@@ -5,9 +5,9 @@ const configKey = 'css-to-go.filesList';
 
 export function activate(context: vscode.ExtensionContext) {
   let config = vscode.workspace.getConfiguration();
-  let listOfFilesToParse = getFilesToParse();
 
   let completions: vscode.CompletionItem[] | null = null;
+  let listOfFilesToParse = new Set(getFilesToParse());
 
   const disposable = vscode.commands.registerCommand(
     'css-to-go.addCssToAutocomplete',
@@ -24,7 +24,7 @@ export function activate(context: vscode.ExtensionContext) {
     }
 
     completions = null;
-    listOfFilesToParse = getFilesToParse();
+    listOfFilesToParse = new Set(getFilesToParse());
   });
 
   const provider = vscode.languages.registerCompletionItemProvider(
@@ -62,20 +62,20 @@ export function activate(context: vscode.ExtensionContext) {
         if (completions == null) {
           completions = [];
 
-          for (const file of listOfFilesToParse.values()) {
-            const rawCompletions: Completions = JSON.parse(getCompletionsForFilesAsString(file));
-            completions = completions.concat(
-              Object.entries(rawCompletions).map(([className, ruleSet]) => {
-                const completion = new vscode.CompletionItem(
-                  className,
-                  vscode.CompletionItemKind.Constant
-                );
-                completion.documentation = getDocsForRuleSet(ruleSet);
+          const rawCompletions: Completions = JSON.parse(
+            getCompletionsForFilesAsString(Array.from(listOfFilesToParse.values()))
+          );
+          completions = completions.concat(
+            Object.entries(rawCompletions).map(([className, ruleSet]) => {
+              const completion = new vscode.CompletionItem(
+                className,
+                vscode.CompletionItemKind.Constant
+              );
+              completion.documentation = getDocsForRuleSet(ruleSet);
 
-                return completion;
-              })
-            );
-          }
+              return completion;
+            })
+          );
         }
 
         return completions;
@@ -92,11 +92,11 @@ export function activate(context: vscode.ExtensionContext) {
 // This method is called when your extension is deactivated
 export function deactivate() {}
 
-function getFilesToParse(): Set<string> {
+function getFilesToParse(): string[] {
   let config = vscode.workspace.getConfiguration();
   let listOfFilesToParse = (config.get(configKey) ?? []) as string[];
 
-  return new Set(listOfFilesToParse);
+  return listOfFilesToParse;
 }
 
 function getDocsForRuleSet(ruleSet: string): vscode.MarkdownString {

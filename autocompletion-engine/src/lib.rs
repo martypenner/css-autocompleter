@@ -7,10 +7,8 @@ use itertools::Itertools;
 use tree_sitter::{Parser, Query, QueryCursor};
 
 #[napi]
-pub fn get_completions_for_files_as_string(path: String) -> String {
-  dbg!(&path);
-  let code = read_to_string(path).expect("Could not read file");
-  let classes = get_completions(code.as_str());
+pub fn get_completions_for_files_as_string(paths: Vec<String>) -> String {
+  let classes = get_completions(paths);
   serde_json::to_string(&classes).expect("Could not convert class hashmap to string")
 }
 
@@ -23,81 +21,82 @@ type RuleSetMap = HashMap<RuleSetId, HelpDoc>;
 type RuleSetId = usize;
 type HelpDoc = String;
 
-// TODO: cache this. On the other hand, tree-sitter claims to be able to
-// re-parse an entire file on every keystroke. Maybe it doesn't matter?
-// But we might have many CSS files to parse, and those probably won't
-// change much. So maybe we use a file watchers instead.
 // TODO: split this thing up for a bit more readability
-fn get_completions(code: &str) -> Completions {
+// TODO: log errors instead of panicking
+fn get_completions(paths: Vec<String>) -> Completions {
   let mut parser = Parser::new();
   parser
     .set_language(tree_sitter_css::language())
     .expect("Error loading scss grammar");
-  let tree = parser.parse(code, None).expect("Could not parse code");
-
-  let code = code.as_bytes();
-
   let query = get_class_selectors_query_for_tree();
   let mut query_cursor = QueryCursor::new();
-  let matches = query_cursor.matches(&query, tree.root_node(), code);
 
   let mut rule_maps_by_class_name: IntermediateCompletions = HashMap::new();
-  for each_match in matches {
-    let [class_selector, class_name] = each_match.captures else {
+
+  for path in paths {
+    let code = read_to_string(&path).expect("Could not read file");
+    let tree = parser.parse(&code, None).expect("Could not parse code");
+    let code = code.as_bytes();
+
+    let matches = query_cursor.matches(&query, tree.root_node(), code);
+
+    for each_match in matches {
+      let [class_selector, class_name] = each_match.captures else {
       println!("Could not destructure captures");
-    continue;
-  };
-    let class_selector = class_selector.node;
-    let class_name = class_name.node;
-
-    // Find parent rule set.
-    let mut parent = class_selector.parent();
-    loop {
-      match parent {
-        Some(found_parent) => {
-          if found_parent.kind() == "rule_set" {
-            // Found it! Now break out of the loop.
-            break;
-          } else {
-            parent = found_parent.parent();
-          }
-        }
-        None => break,
-      }
-    }
-
-    let rule_set_node = match parent {
-      Some(p) => p,
-      None => {
-        println!(
-          "Could not find parent rule set for: {}. Likely a malformed stylesheet.",
-          class_selector
-            .utf8_text(code)
-            .expect("Could not convert node to utf8 text")
-            .to_string()
-        );
-        continue;
-      }
+      continue;
     };
 
-    let rule_set = rule_set_node
-      .utf8_text(code)
-      .expect("Could not convert node to utf8 text")
-      .to_string();
+      let class_selector = class_selector.node;
+      let class_name = class_name.node;
 
-    let class_name = class_name
-      .utf8_text(code)
-      .expect("Could not convert node to utf8 text")
-      .to_string();
+      // Find parent rule set.
+      let mut parent = class_selector.parent();
+      loop {
+        match parent {
+          Some(found_parent) => {
+            if found_parent.kind() == "rule_set" {
+              break;
+            } else {
+              parent = found_parent.parent();
+            }
+          }
+          None => break,
+        }
+      }
 
-    rule_maps_by_class_name
-      .entry(class_name)
-      .and_modify(|rule_map| {
-        rule_map
-          .entry(rule_set_node.id())
-          .or_insert(rule_set.to_owned());
-      })
-      .or_insert(HashMap::from([(rule_set_node.id(), rule_set)]));
+      let rule_set_node = match parent {
+        Some(p) => p,
+        None => {
+          println!(
+            "Could not find parent rule set for: {}. Likely a malformed stylesheet.",
+            class_selector
+              .utf8_text(code)
+              .expect("Could not convert node to utf8 text")
+              .to_string()
+          );
+          continue;
+        }
+      };
+
+      let rule_set = rule_set_node
+        .utf8_text(code)
+        .expect("Could not convert node to utf8 text")
+        .to_string();
+
+      let class_name = class_name
+        .utf8_text(code)
+        .expect("Could not convert node to utf8 text")
+        .to_string();
+
+      rule_maps_by_class_name
+        .entry(class_name)
+        .and_modify(|rule_map| {
+          rule_map
+            .entry(rule_set_node.id())
+            .or_insert(rule_set.to_owned());
+        })
+        .or_insert(HashMap::from([(rule_set_node.id(), rule_set)]));
+    }
   }
 
   // Convert intermediate completions into final map.
@@ -131,9 +130,8 @@ mod tests {
   use super::*;
 
   #[test]
-  fn it_works() {
-    let code = include_str!("../__test__/test.atom.io.css");
-    let actual = get_completions(code);
+  fn can_get_completions() {
+    let actual = get_completions(vec!["./__test__/test.atom.io.css".to_string()]);
     let expected = [
       (
         "drag-and-drop",
@@ -167,5 +165,12 @@ mod tests {
     }
 
     assert_eq!(actual.len(), expected.len());
+  }
+
+  // TODO:
+  #[test]
+  fn can_get_completions_as_string() {
+    // let actual =
+    //   get_completions_for_files_as_string(vec!["./__test__/test.atom.io.css".to_string()]);
   }
 }
