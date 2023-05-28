@@ -6,12 +6,6 @@ use std::{collections::HashMap, fs::read_to_string, println};
 use itertools::Itertools;
 use tree_sitter::{Parser, Query, QueryCursor};
 
-#[napi]
-pub fn get_completions_for_files_as_string(paths: Vec<String>) -> String {
-  let classes = get_completions(paths);
-  serde_json::to_string(&classes).expect("Could not convert class hashmap to string")
-}
-
 type Completions = HashMap<ClassName, RuleSet>;
 type IntermediateCompletions = HashMap<ClassName, RuleSetMap>;
 type ClassName = String;
@@ -21,94 +15,128 @@ type RuleSetMap = HashMap<RuleSetId, HelpDoc>;
 type RuleSetId = usize;
 type HelpDoc = String;
 
-// TODO: split this thing up for a bit more readability
-// TODO: log errors instead of panicking
-fn get_completions(paths: Vec<String>) -> Completions {
-  let mut parser = Parser::new();
-  parser
-    .set_language(tree_sitter_css::language())
-    .expect("Error loading scss grammar");
-  let query = get_class_selectors_query_for_tree();
-  let mut query_cursor = QueryCursor::new();
+#[napi]
+pub struct AutocompletionEngine {
+  completions: Completions,
+}
 
-  let mut rule_maps_by_class_name: IntermediateCompletions = HashMap::new();
+#[napi]
+impl AutocompletionEngine {
+  #[napi(constructor)]
+  pub fn new() -> Self {
+    Self {
+      completions: HashMap::new(),
+    }
+  }
 
-  for path in paths {
-    let code = read_to_string(&path).expect("Could not read file");
-    let tree = parser.parse(&code, None).expect("Could not parse code");
-    let code = code.as_bytes();
+  #[napi]
+  pub fn get_all_completions_as_string(&mut self, files: Vec<String>) -> String {
+    let completions = self.get_all_completions_for_files(files);
+    serde_json::to_string(completions).expect("Could not convert class hashmap to string")
+  }
 
-    let matches = query_cursor.matches(&query, tree.root_node(), code);
+  #[napi]
+  pub fn invalidate_cache(&mut self) {
+    self.completions = HashMap::new();
+  }
 
-    for each_match in matches {
-      let [class_selector, class_name] = each_match.captures else {
+  // TODO: split this thing up for a bit more readability
+  // TODO: log errors instead of panicking
+  // TODO: we're currently structured around classnames. This is nice for looping and
+  // creating the final completions list, but makes it harder to invalidate the cache
+  // for a single file. Need to rethink this.
+  fn get_all_completions_for_files(&mut self, files: Vec<String>) -> &Completions {
+    if self.completions.len() > 0 {
+      return &self.completions;
+    }
+
+    let mut parser = Parser::new();
+    parser
+      .set_language(tree_sitter_css::language())
+      .expect("Error loading scss grammar");
+    let query = get_class_selectors_query_for_tree();
+    let mut query_cursor = QueryCursor::new();
+
+    let mut rule_maps_by_class_name: IntermediateCompletions = HashMap::new();
+
+    for path in files {
+      let code = read_to_string(&path).expect("Could not read file");
+      let tree = parser.parse(&code, None).expect("Could not parse code");
+      let code = code.as_bytes();
+
+      let matches = query_cursor.matches(&query, tree.root_node(), code);
+
+      for each_match in matches {
+        let [class_selector, class_name] = each_match.captures else {
       println!("Could not destructure captures");
       continue;
     };
 
-      let class_selector = class_selector.node;
-      let class_name = class_name.node;
+        let class_selector = class_selector.node;
+        let class_name = class_name.node;
 
-      // Find parent rule set.
-      let mut parent = class_selector.parent();
-      loop {
-        match parent {
-          Some(found_parent) => {
-            if found_parent.kind() == "rule_set" {
-              break;
-            } else {
-              parent = found_parent.parent();
+        // Find parent rule set.
+        let mut parent = class_selector.parent();
+        loop {
+          match parent {
+            Some(found_parent) => {
+              if found_parent.kind() == "rule_set" {
+                break;
+              } else {
+                parent = found_parent.parent();
+              }
             }
+            None => break,
           }
-          None => break,
         }
+
+        let rule_set_node = match parent {
+          Some(p) => p,
+          None => {
+            println!(
+              "Could not find parent rule set for: {}. Likely a malformed stylesheet.",
+              class_selector
+                .utf8_text(code)
+                .expect("Could not convert node to utf8 text")
+                .to_string()
+            );
+            continue;
+          }
+        };
+
+        let rule_set = rule_set_node
+          .utf8_text(code)
+          .expect("Could not convert node to utf8 text")
+          .to_string();
+
+        let class_name = class_name
+          .utf8_text(code)
+          .expect("Could not convert node to utf8 text")
+          .to_string();
+
+        rule_maps_by_class_name
+          .entry(class_name)
+          .and_modify(|rule_map| {
+            rule_map
+              .entry(rule_set_node.id())
+              .or_insert(rule_set.to_owned());
+          })
+          .or_insert(HashMap::from([(rule_set_node.id(), rule_set)]));
       }
-
-      let rule_set_node = match parent {
-        Some(p) => p,
-        None => {
-          println!(
-            "Could not find parent rule set for: {}. Likely a malformed stylesheet.",
-            class_selector
-              .utf8_text(code)
-              .expect("Could not convert node to utf8 text")
-              .to_string()
-          );
-          continue;
-        }
-      };
-
-      let rule_set = rule_set_node
-        .utf8_text(code)
-        .expect("Could not convert node to utf8 text")
-        .to_string();
-
-      let class_name = class_name
-        .utf8_text(code)
-        .expect("Could not convert node to utf8 text")
-        .to_string();
-
-      rule_maps_by_class_name
-        .entry(class_name)
-        .and_modify(|rule_map| {
-          rule_map
-            .entry(rule_set_node.id())
-            .or_insert(rule_set.to_owned());
-        })
-        .or_insert(HashMap::from([(rule_set_node.id(), rule_set)]));
     }
-  }
 
-  // Convert intermediate completions into final map.
-  // TODO: there HAS to be a better way to convert a map to a final string, but
-  // `collect` was pretty cumbersome, and I gave up.
-  let mut rule_sets_by_class_name: Completions = HashMap::new();
-  for (class_name, rule_map) in rule_maps_by_class_name {
-    let rule_sets: Vec<String> = rule_map.into_values().sorted().collect();
-    rule_sets_by_class_name.insert(class_name, rule_sets.join("\n\n"));
-  }
+    // Convert intermediate completions into final map.
+    // TODO: there HAS to be a better way to convert a map to a final string, but
+    // `collect` was pretty cumbersome, and I gave up.
+    let mut rule_sets_by_class_name: Completions = HashMap::new();
+    for (class_name, rule_map) in rule_maps_by_class_name {
+      let rule_sets: Vec<String> = rule_map.into_values().sorted().collect();
+      rule_sets_by_class_name.insert(class_name, rule_sets.join("\n\n"));
+    }
 
-  rule_sets_by_class_name
+    self.completions = rule_sets_by_class_name;
+    &self.completions
+  }
 }
 
 fn get_class_selectors_query_for_tree() -> Query {
@@ -131,7 +159,10 @@ mod tests {
 
   #[test]
   fn can_get_completions() {
-    let actual = get_completions(vec!["./__test__/test.atom.io.css".to_string()]);
+    let mut engine = AutocompletionEngine::new();
+
+    let actual =
+      engine.get_all_completions_for_files(vec!["./__test__/test.atom.io.css".to_string()]);
     let expected = [
       (
         "drag-and-drop",
