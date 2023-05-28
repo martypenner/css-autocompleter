@@ -115,7 +115,9 @@ function setupFileWatchers() {
 function getFilesToParseFromConfig(config: vscode.WorkspaceConfiguration) {
   let files = config.get(filesConfigKey, []) as string[];
   if (!Array.isArray(files)) {
-    console.warn(`Invalid config value for ${filesConfigKey}. Expected an array of strings.`);
+    vscode.window.showErrorMessage(
+      `Found an invalid config value for ${filesConfigKey}. Expected an array of strings. Falling back to [].`
+    );
     files = [];
   }
 
