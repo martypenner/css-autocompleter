@@ -159,13 +159,8 @@ fn get_class_selectors_query_for_tree() -> Query {
 mod tests {
   use super::*;
 
-  #[test]
-  fn can_get_completions() {
-    let mut engine = AutocompletionEngine::new();
-
-    let actual =
-      engine.get_all_completions_for_files(vec!["./__test__/test.atom.io.css".to_string()]);
-    let expected = [
+  fn get_list() -> [(&'static str, &'static str); 6] {
+    [
       (
         "drag-and-drop",
         "input[type=\"text\"].focus,\n#adv_code_search .focus.search-page-label,\ninput[type=\"text\"]:focus,\n.focused .drag-and-drop,\n#adv_code_search .search-page-label:focus,\ninput[type=\"password\"].focus,\ninput[type=\"password\"]:focus,\ninput[type=\"email\"].focus,\ninput[type=\"email\"]:focus,\ninput[type=\"number\"].focus,\ninput[type=\"number\"]:focus,\ninput[type=\"tel\"].focus,\ninput[type=\"tel\"]:focus,\ninput[type=\"url\"].focus,\ninput[type=\"url\"]:focus,\ninput[type=\"search\"].focus,\ninput[type=\"search\"]:focus,\ntextarea.focus,\ntextarea:focus {\n  border-color: #51a7e8;\n  box-shadow: inset 0 1px 2px rgba(0, 0, 0, 0.075),\n    0 0 5px rgba(81, 167, 232, 0.5);\n}"
@@ -190,7 +185,16 @@ mod tests {
         "wrapper",
         "#peek .wrapper {\n  width: 860px !important;\n  padding: 0;\n}\n\n#peek2 .wrapper {\n  border: 1px solid red;\n}",
       ),
-    ];
+    ]
+  }
+
+  #[test]
+  fn can_get_completions() {
+    let mut engine = AutocompletionEngine::new();
+
+    let actual =
+      engine.get_all_completions_for_files(vec!["./__test__/test.atom.io.css".to_string()]);
+    let expected = get_list();
 
     for (i, (class_name, rule_set)) in expected.iter().enumerate() {
       dbg!(class_name);
@@ -200,10 +204,15 @@ mod tests {
     assert_eq!(actual.len(), expected.len());
   }
 
-  // TODO:
+  // This is cheating a bit, but I don't have time or energy to inline a long string right now.
   #[test]
   fn can_get_completions_as_string() {
-    // let actual =
-    //   get_completions_for_files_as_string(vec!["./__test__/test.atom.io.css".to_string()]);
+    let mut engine = AutocompletionEngine::new();
+
+    let list = get_list();
+    let actual =
+      engine.get_all_completions_as_string(vec!["./__test__/test.atom.io.css".to_string()]);
+    let expected = serde_json::to_string(&list).expect("Could not convert class hashmap to string");
+    assert_eq!(actual, expected);
   }
 }
