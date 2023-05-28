@@ -6,7 +6,7 @@ use std::{collections::HashMap, fs::read_to_string, println};
 use itertools::Itertools;
 use tree_sitter::{Parser, Query, QueryCursor};
 
-type Completions = HashMap<ClassName, RuleSet>;
+type Completions = Vec<(ClassName, RuleSet)>;
 type IntermediateCompletions = HashMap<ClassName, RuleSetMap>;
 type ClassName = String;
 type RuleSet = String;
@@ -25,7 +25,7 @@ impl AutocompletionEngine {
   #[napi(constructor)]
   pub fn new() -> Self {
     Self {
-      completions: HashMap::new(),
+      completions: vec![],
     }
   }
 
@@ -37,7 +37,7 @@ impl AutocompletionEngine {
 
   #[napi]
   pub fn invalidate_cache(&mut self) {
-    self.completions = HashMap::new();
+    self.completions = vec![];
   }
 
   // TODO: split this thing up for a bit more readability
@@ -125,16 +125,18 @@ impl AutocompletionEngine {
       }
     }
 
-    // Convert intermediate completions into final map.
+    // Convert intermediate completions into final list.
     // TODO: there HAS to be a better way to convert a map to a final string, but
     // `collect` was pretty cumbersome, and I gave up.
-    let mut rule_sets_by_class_name: Completions = HashMap::new();
-    for (class_name, rule_map) in rule_maps_by_class_name {
+    let mut completions: Vec<(String, String)> = vec![];
+    for class_name in rule_maps_by_class_name.keys().sorted() {
+      let rule_map = rule_maps_by_class_name.get(class_name).unwrap().to_owned();
       let rule_sets: Vec<String> = rule_map.into_values().sorted().collect();
-      rule_sets_by_class_name.insert(class_name, rule_sets.join("\n\n"));
+
+      completions.push((class_name.clone(), rule_sets.join("\n\n")));
     }
 
-    self.completions = rule_sets_by_class_name;
+    self.completions = completions;
     &self.completions
   }
 }
@@ -190,9 +192,9 @@ mod tests {
       ),
     ];
 
-    for (class_name, rule_set) in expected {
+    for (i, (class_name, rule_set)) in expected.iter().enumerate() {
       dbg!(class_name);
-      assert_eq!(&rule_set.to_string(), actual.get(class_name).unwrap());
+      assert_eq!(rule_set.to_string(), actual[i].1);
     }
 
     assert_eq!(actual.len(), expected.len());

@@ -32,8 +32,6 @@ export function activate(context: vscode.ExtensionContext) {
     'html',
     {
       provideCompletionItems(document: vscode.TextDocument, position: vscode.Position) {
-        // TODO: don't run if there are no completions
-
         // Get the entire line text and search for `class=""`. We only want to
         // trigger completions inside of that and nowhere else. I really wish we
         // didn't have to resort to a regex, but setting up embedded languages
@@ -61,7 +59,7 @@ export function activate(context: vscode.ExtensionContext) {
         const rawCompletions: Completions = JSON.parse(
           engine.getAllCompletionsAsString(filesToParse)
         );
-        const completions = Object.entries(rawCompletions).map(([className, ruleSet]) => {
+        const completions = rawCompletions.map(([className, ruleSet]) => {
           const completion = new vscode.CompletionItem(
             className,
             vscode.CompletionItemKind.Constant
@@ -84,10 +82,9 @@ export function activate(context: vscode.ExtensionContext) {
 
 export function deactivate() {}
 
-type Completion = string;
-type Completions = {
-  [className: string]: Completion;
-};
+type ClassName = string;
+type RuleSet = string;
+type Completions = Array<[ClassName, RuleSet]>;
 
 const CSS_MARKER = '```';
 
@@ -114,7 +111,7 @@ function setupFileWatchers() {
   // }
 }
 
-// TODO: gaurd against invalid values
+// TODO: guard against invalid values
 function getFilesToParseFromConfig(config: vscode.WorkspaceConfiguration) {
   let files = config.get(filesConfigKey, []) as string[];
   if (!Array.isArray(files)) {
