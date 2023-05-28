@@ -1,7 +1,11 @@
 #[macro_use]
 extern crate napi_derive;
 
-use std::{collections::HashMap, fs::read_to_string, println};
+use std::{
+  collections::{HashMap, HashSet},
+  fs::read_to_string,
+  println,
+};
 
 use itertools::Itertools;
 use tree_sitter::{Parser, Query, QueryCursor};
@@ -49,6 +53,9 @@ impl AutocompletionEngine {
     if self.completions.len() > 0 {
       return &self.completions;
     }
+
+    // Ensure we don't operate on the same file twice.
+    let files: HashSet<String> = files.into_iter().collect();
 
     let mut parser = Parser::new();
     parser
@@ -214,5 +221,10 @@ mod tests {
       engine.get_all_completions_as_string(vec!["./__test__/test.atom.io.css".to_string()]);
     let expected = serde_json::to_string(&list).expect("Could not convert class hashmap to string");
     assert_eq!(actual, expected);
+  }
+
+  #[test]
+  fn operates_only_once_on_each_file() {
+    // TODO: not sure how to test this
   }
 }

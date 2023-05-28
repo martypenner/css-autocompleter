@@ -8,7 +8,7 @@ export function activate(context: vscode.ExtensionContext) {
   const engine = new AutocompletionEngine();
 
   // TODO: filter out files not in workspace
-  let filesToParse = Array.from(new Set(getFilesToParseFromConfig(config)));
+  let filesToParse = getFilesToParseFromConfig(config);
 
   const disposable = vscode.commands.registerCommand(
     'css-to-go.addCssToAutocomplete',
@@ -102,7 +102,6 @@ function setupFileWatchers() {
   //   );
   //
   //   watcher.onDidChange((uri) => {});
-  //   watcher.onDidCreate((uri) => {});
   //   watcher.onDidDelete((uri) => {
   //     watcher.dispose();
   //   });
@@ -111,7 +110,6 @@ function setupFileWatchers() {
   // }
 }
 
-// TODO: guard against invalid values
 function getFilesToParseFromConfig(config: vscode.WorkspaceConfiguration) {
   let files = config.get(filesConfigKey, []) as string[];
   if (!Array.isArray(files)) {
