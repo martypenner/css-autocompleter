@@ -13,7 +13,7 @@ export function activate(context: vscode.ExtensionContext) {
     return;
   }
 
-  const disposable = vscode.commands.registerCommand(
+  const command = vscode.commands.registerCommand(
     'css-to-go.addCssToAutocomplete',
     async (file) => {
       const newList = Array.from(getFilesToParseFromConfig(config, engine).keys()).concat(
@@ -47,7 +47,7 @@ export function activate(context: vscode.ExtensionContext) {
   });
 
   const provider = vscode.languages.registerCompletionItemProvider(
-    'html',
+    ['html'],
     {
       provideCompletionItems(document: vscode.TextDocument, position: vscode.Position) {
         // Get the entire line text and search for `class=""`. We only want to
@@ -57,9 +57,11 @@ export function activate(context: vscode.ExtensionContext) {
         // will be bitten by a massive bug or a regex DOS attack and have to
         // rethink this, but it works for now.
         const line = document.lineAt(position).text;
-        const classRegex = /class=["'][^"']*/giu;
+        const classRegex = /class=["'](?<classList>[^"']*)/giu;
+        const allMatches = line.matchAll(classRegex);
+        const existingClassList = new Set();
 
-        for (const match of line.matchAll(classRegex)) {
+        for (const match of allMatches) {
           // eslint-disable-next-line eqeqeq
           if (match.index == null) {
             continue;
@@ -71,25 +73,39 @@ export function activate(context: vscode.ExtensionContext) {
           if (!isWithinRange) {
             return undefined;
           }
+
+          const classList = match.groups?.classList.split(' ').filter(Boolean) ?? [];
+          for (const className of classList) {
+            existingClassList.add(className);
+          }
         }
 
-        // TODO: don't provide completions for classes already in the class list
-        const rawCompletions: Completions = JSON.parse(
-          engine.getAllCompletionsAsString(Array.from(filesAndWatchers.keys()))
-        );
-        const completions = rawCompletions.map(([className, ruleSet]) => {
-          const completion = new vscode.CompletionItem(
-            className,
-            vscode.CompletionItemKind.Constant
+        try {
+          const allCompletions: Completions = JSON.parse(
+            engine.getAllCompletionsAsString(Array.from(filesAndWatchers.keys()))
           );
-          completion.documentation = new vscode.MarkdownString(
-            ['```css', ruleSet, '```'].join('\n')
+          const allowedCompletions = allCompletions.filter(
+            ([className]) => !existingClassList.has(className)
           );
+          const completions = allowedCompletions.map(([className, ruleSet]) => {
+            const completion = new vscode.CompletionItem(
+              className,
+              vscode.CompletionItemKind.Constant
+            );
+            completion.documentation = new vscode.MarkdownString(
+              ['```css', ruleSet, '```'].join('\n')
+            );
 
-          return completion;
-        });
+            return completion;
+          });
 
-        return completions;
+          return completions;
+        } catch (error) {
+          vscode.window.showErrorMessage(
+            `Error parsing CSS completions from the autocompletion engine: ${error}`
+          );
+          console.error(`Error parsing CSS completions from the autocompletion engine: ${error}`);
+        }
       },
     },
     "'",
@@ -97,7 +113,7 @@ export function activate(context: vscode.ExtensionContext) {
     ' '
   );
 
-  context.subscriptions.push(disposable, provider);
+  context.subscriptions.push(command, provider);
 }
 
 export function deactivate() {}
