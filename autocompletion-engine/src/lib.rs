@@ -67,8 +67,20 @@ impl AutocompletionEngine {
     let mut rule_maps_by_class_name: IntermediateCompletions = HashMap::new();
 
     for path in files {
-      let code = read_to_string(&path).expect("Could not read file");
-      let tree = parser.parse(&code, None).expect("Could not parse code");
+      let code = match read_to_string(&path) {
+        Ok(code) => code,
+        Err(e) => {
+          println!("Could not read file: {}", e);
+          continue;
+        }
+      };
+      let tree = match parser.parse(&code, None) {
+        Some(tree) => tree,
+        None => {
+          println!("Could not parse code");
+          continue;
+        }
+      };
       let code = code.as_bytes();
 
       let matches = query_cursor.matches(&query, tree.root_node(), code);
@@ -111,15 +123,31 @@ impl AutocompletionEngine {
           }
         };
 
-        let rule_set = rule_set_node
-          .utf8_text(code)
-          .expect("Could not convert node to utf8 text")
-          .to_string();
+        let rule_set = match rule_set_node.utf8_text(code) {
+          Ok(rule_set) => rule_set,
+          Err(e) => {
+            println!(
+              "Could not convert node to utf8 text: {}. Error was: {}",
+              rule_set_node.kind(),
+              e
+            );
+            continue;
+          }
+        }
+        .to_string();
 
-        let class_name = class_name
-          .utf8_text(code)
-          .expect("Could not convert node to utf8 text")
-          .to_string();
+        let class_name = match class_name.utf8_text(code) {
+          Ok(class_name) => class_name,
+          Err(e) => {
+            println!(
+              "Could not convert node to utf8 text: {}. Error was: {}",
+              class_name.kind(),
+              e
+            );
+            continue;
+          }
+        }
+        .to_string();
 
         rule_maps_by_class_name
           .entry(class_name)
