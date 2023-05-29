@@ -41,7 +41,7 @@ export function activate(context: vscode.ExtensionContext) {
       return;
     }
 
-    // TODO: these don't work
+    // TODO: these don't work. They give me the old values, not the new ones.
     // cleanupFileWatchers(filesAndWatchers);
     // filesToParse = getFilesToParseFromConfig(config);
   });
