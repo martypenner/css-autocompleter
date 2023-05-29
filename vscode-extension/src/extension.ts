@@ -23,14 +23,15 @@ export function activate(context: vscode.ExtensionContext) {
     async (file) => {
       const newList = getFilesToParseFromConfig(config).concat(file.path);
 
-      try {
-        await config.update(`${EXTENSION_NAME}.${FILES_LIST_KEY}`, newList, true);
-      } catch (error) {
-        vscode.window.showErrorMessage(
-          `We couldn't update your configuration for some reason. Please see the debug logs for more info.`
-        );
-        console.error(`We couldn't update your configuration for the following reason: ${error}`);
-      }
+      config.update(`${EXTENSION_NAME}.${FILES_LIST_KEY}`, newList, true).then(
+        () => {},
+        (error) => {
+          vscode.window.showErrorMessage(
+            `We couldn't update your configuration for some reason. Please see the debug logs for more info.`
+          );
+          console.error(`We couldn't update your configuration for the following reason: ${error}`);
+        }
+      );
     }
   );
 
@@ -46,6 +47,7 @@ export function activate(context: vscode.ExtensionContext) {
     }
 
     // TODO: these don't work. They give me the old values, not the new ones.
+
     // cleanupFileWatchers(filesAndWatchers);
     // filesToParse = getFilesToParseFromConfig(config);
   });
