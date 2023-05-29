@@ -22,6 +22,8 @@ type HelpDoc = String;
 #[napi]
 pub struct AutocompletionEngine {
   completions: Completions,
+  query: Query,
+  query_cursor: QueryCursor,
 }
 
 #[napi]
@@ -30,6 +32,8 @@ impl AutocompletionEngine {
   pub fn new() -> Self {
     Self {
       completions: vec![],
+      query: get_class_selectors_query_for_tree(),
+      query_cursor: QueryCursor::new(),
     }
   }
 
@@ -44,7 +48,6 @@ impl AutocompletionEngine {
     self.completions = vec![];
   }
 
-  // TODO: split this thing up for a bit more readability
   // TODO: log errors instead of panicking
   // TODO: we're currently structured around classnames. This is nice for looping and
   // creating the final completions list, but makes it harder to invalidate the cache
@@ -57,13 +60,6 @@ impl AutocompletionEngine {
     // Ensure we don't operate on the same file twice.
     let files: HashSet<String> = files.into_iter().collect();
 
-    let mut parser = Parser::new();
-    parser
-      .set_language(tree_sitter_css::language())
-      .expect("Error loading scss grammar");
-    let query = get_class_selectors_query_for_tree();
-    let mut query_cursor = QueryCursor::new();
-
     let mut rule_maps_by_class_name: IntermediateCompletions = HashMap::new();
 
     for path in files {
@@ -74,6 +70,10 @@ impl AutocompletionEngine {
           continue;
         }
       };
+      // Deciding for now to rebuild the parser for every file since I don't know how it
+      // works under the hood. It's probably fine to reuse it, but I don't want to risk
+      // some weird state bug.
+      let mut parser = self.build_parser();
       let tree = match parser.parse(&code, None) {
         Some(tree) => tree,
         None => {
@@ -83,18 +83,20 @@ impl AutocompletionEngine {
       };
       let code = code.as_bytes();
 
-      let matches = query_cursor.matches(&query, tree.root_node(), code);
+      let matches = self
+        .query_cursor
+        .matches(&self.query, tree.root_node(), code);
 
       for each_match in matches {
         let [class_selector, class_name] = each_match.captures else {
-      println!("Could not destructure captures");
-      continue;
-    };
+			println!("Could not destructure captures");
+			continue;
+		};
 
         let class_selector = class_selector.node;
         let class_name = class_name.node;
 
-        // Find parent rule set.
+        // Walk upwards, finding the parent rule set.
         let mut parent = class_selector.parent();
         loop {
           match parent {
@@ -173,6 +175,16 @@ impl AutocompletionEngine {
 
     self.completions = completions;
     &self.completions
+  }
+
+  fn build_parser(&self) -> Parser {
+    let mut parser = Parser::new();
+    parser
+      .set_language(tree_sitter_css::language())
+      // TODO: log this better, and don't panic
+      .expect("Error loading scss grammar");
+
+    parser
   }
 }
 
