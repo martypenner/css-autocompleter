@@ -34,12 +34,44 @@
       "properties": {
         "css-to-go.filesList": {
           "type": "array",
-          "scope": "window",
+          "description": "These CSS files will have their classes made available for autocompletion. Autocomplete will only be provided for files within the workspace you currently have open.",
           "items": {
             "type": "string"
           },
-          "default": [],
-          "description": "These CSS files will have their classes made available for autocompletion."
+          "default": []
+        },
+        "css-to-go.htmlLanguages": {
+          "type": "array",
+          "description": "A list of HTML based languages where suggestions are enabled.",
+          "items": {
+            "type": "string"
+          },
+          "default": [
+            "html",
+            "vue",
+            "razor",
+            "blade",
+            "handlebars",
+            "twig",
+            "django-html",
+            "php",
+            "markdown",
+            "erb",
+            "ejs",
+            "svelte"
+          ]
+        },
+        "css-to-go.javascriptLanguages": {
+          "type": "array",
+          "description": "A list of JavaScript based languages where suggestions are enabled.",
+          "items": {
+            "type": "string"
+          },
+          "default": [
+            "javascript",
+            "javascriptreact",
+            "typescriptreact"
+          ]
         }
       }
     }

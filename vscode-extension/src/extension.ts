@@ -2,7 +2,10 @@ import * as vscode from 'vscode';
 import * as path from 'node:path';
 import { AutocompletionEngine } from '../autocompletion-engine';
 
-const filesConfigKey = 'css-to-go.filesList';
+const EXTENSION_NAME = 'css-to-go';
+const FILES_LIST_KEY = 'filesList';
+const HTML_LANGUAGES_KEY = 'htmlLanguages';
+const JS_LANGUAGES_KEY = 'javascriptLanguages';
 
 export function activate(context: vscode.ExtensionContext) {
   const config = vscode.workspace.getConfiguration();
@@ -13,14 +16,16 @@ export function activate(context: vscode.ExtensionContext) {
     return;
   }
 
+  const languages = getLanguagesFromConfig(config);
+
   const command = vscode.commands.registerCommand(
-    'css-to-go.addCssToAutocomplete',
+    `${EXTENSION_NAME}.addCssToAutocomplete`,
     async (file) => {
       const newList = Array.from(getFilesToParseFromConfig(config, engine).keys()).concat(
         file.path
       );
       try {
-        await config.update(filesConfigKey, newList, true);
+        await config.update(`${EXTENSION_NAME}.${FILES_LIST_KEY}`, newList, true);
       } catch (error) {
         vscode.window.showErrorMessage(
           `We couldn't update your configuration for some reason. Please see the debug logs for more info.`
@@ -32,12 +37,12 @@ export function activate(context: vscode.ExtensionContext) {
 
   vscode.workspace.onDidChangeWorkspaceFolders(() => {
     cleanupFileWatchers(filesAndWatchers);
-    // Re-filter the files to parse.
+    // Refresh the files to parse.
     filesAndWatchers = getFilesToParseFromConfig(config, engine);
   });
 
   vscode.workspace.onDidChangeConfiguration((event) => {
-    if (!event.affectsConfiguration(filesConfigKey)) {
+    if (!event.affectsConfiguration(`${EXTENSION_NAME}`)) {
       return;
     }
 
@@ -47,26 +52,7 @@ export function activate(context: vscode.ExtensionContext) {
   });
 
   const provider = vscode.languages.registerCompletionItemProvider(
-    // TODO: allow the user to define their own languages.
-    [
-      // HTML languages
-      'html',
-      'vue',
-      'razor',
-      'blade',
-      'handlebars',
-      'twig',
-      'django-html',
-      'php',
-      'markdown',
-      'erb',
-      'ejs',
-      'svelte',
-      // JS languages
-      'javascript',
-      'javascriptreact',
-      'typescriptreact',
-    ],
+    languages,
     {
       provideCompletionItems(document: vscode.TextDocument, position: vscode.Position) {
         // Get the entire line text and search for `class=""`. We only want to
@@ -135,6 +121,24 @@ export function activate(context: vscode.ExtensionContext) {
   context.subscriptions.push(command, provider);
 }
 
+function getLanguagesFromConfig(config: vscode.WorkspaceConfiguration) {
+  let htmlLanguages = config.get(`${EXTENSION_NAME}.${HTML_LANGUAGES_KEY}`, []);
+  if (!Array.isArray(htmlLanguages)) {
+    vscode.window.showErrorMessage(
+      `Found an invalid config value for ${HTML_LANGUAGES_KEY}. Expected an array of strings. Falling back to [].`
+    );
+    htmlLanguages = [];
+  }
+  let javascriptLanguages = config.get(`${EXTENSION_NAME}.${JS_LANGUAGES_KEY}`, []);
+  if (!Array.isArray(javascriptLanguages)) {
+    vscode.window.showErrorMessage(
+      `Found an invalid config value for ${JS_LANGUAGES_KEY}. Expected an array of strings. Falling back to [].`
+    );
+    javascriptLanguages = [];
+  }
+  return htmlLanguages.concat(javascriptLanguages);
+}
+
 export function deactivate() {}
 
 type ClassName = string;
@@ -151,10 +155,10 @@ function getFilesToParseFromConfig(
   config: vscode.WorkspaceConfiguration,
   engine: AutocompletionEngine
 ): Map<string, vscode.FileSystemWatcher> {
-  let files = config.get(filesConfigKey, []) as string[];
+  let files = config.get(`${EXTENSION_NAME}.${FILES_LIST_KEY}`, []) as string[];
   if (!Array.isArray(files)) {
     vscode.window.showErrorMessage(
-      `Found an invalid config value for ${filesConfigKey}. Expected an array of strings. Falling back to [].`
+      `Found an invalid config value for ${FILES_LIST_KEY}. Expected an array of strings. Falling back to [].`
     );
     files = [];
   }
