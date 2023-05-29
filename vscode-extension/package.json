@@ -34,7 +34,7 @@
       "properties": {
         "css-to-go.filesList": {
           "type": "array",
-          "scope": "machine-overridable",
+          "scope": "window",
           "items": {
             "type": "string"
           },

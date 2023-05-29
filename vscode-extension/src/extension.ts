@@ -1,4 +1,5 @@
 import * as vscode from 'vscode';
+import * as path from 'node:path';
 import { AutocompletionEngine } from '../autocompletion-engine';
 
 const filesConfigKey = 'css-to-go.filesList';
@@ -7,24 +8,37 @@ export function activate(context: vscode.ExtensionContext) {
   const config = vscode.workspace.getConfiguration();
   const engine = new AutocompletionEngine();
 
-  // TODO: filter out files not in workspace
   let filesToParse = getFilesToParseFromConfig(config);
+  if (vscode.workspace.workspaceFolders === undefined) {
+    return;
+  }
 
   const disposable = vscode.commands.registerCommand(
     'css-to-go.addCssToAutocomplete',
     async (file) => {
       const newList = Array.from(new Set(getFilesToParseFromConfig(config).concat(file.path)));
-      await config.update(filesConfigKey, newList);
+      try {
+        await config.update(filesConfigKey, newList, true);
+      } catch (error) {
+        vscode.window.showErrorMessage(
+          `We couldn't update your configuration for some reason. Please see the debug logs for more info.`
+        );
+        console.error(`We couldn't update your configuration for the following reason: ${error}`);
+      }
     }
   );
-  // TODO : on workspace change, reload the completions
-  // TODO : on files change, reload the completions
+
+  vscode.workspace.onDidChangeWorkspaceFolders(() => {
+    // Re-filter the files to parse.
+    filesToParse = getFilesToParseFromConfig(config);
+  });
+
+  // TODO: this doesn't work
   vscode.workspace.onDidChangeConfiguration((event) => {
     if (!event.affectsConfiguration(filesConfigKey)) {
       return;
     }
 
-    // TODO: this isn't picking up the changes properly
     // filesToParse = getFilesToParseFromConfig(config);
   });
 
@@ -64,7 +78,9 @@ export function activate(context: vscode.ExtensionContext) {
             className,
             vscode.CompletionItemKind.Constant
           );
-          completion.documentation = getDocsForRuleSet(ruleSet);
+          completion.documentation = new vscode.MarkdownString(
+            ['```css', ruleSet, '```'].join('\n')
+          );
 
           return completion;
         });
@@ -86,9 +102,7 @@ type ClassName = string;
 type RuleSet = string;
 type Completions = Array<[ClassName, RuleSet]>;
 
-const CSS_MARKER = '```';
-
-// TODO:
+// TODO : on files change, reload the completions
 function setupFileWatchers() {
   // let filesAndTheirWatchers = new Map();
   // for (const file of filesToParse) {
@@ -119,15 +133,14 @@ function getFilesToParseFromConfig(config: vscode.WorkspaceConfiguration) {
     files = [];
   }
 
-  return files;
-}
+  const workspaceFolderNames =
+    vscode.workspace.workspaceFolders?.map((folder) => folder.uri.path) ?? [];
+  files = files.filter(
+    (file) =>
+      workspaceFolderNames.find((folder) => path.dirname(file).startsWith(folder)) !== undefined
+  );
 
-function getDocsForRuleSet(ruleSet: string): vscode.MarkdownString {
-  return new vscode.MarkdownString(`
-${CSS_MARKER}css
-${ruleSet}
-${CSS_MARKER}
-`);
+  return files;
 }
 
 // function getWatcherForFiles(files: string[]): Map<string, vscode.FileSystemWatcher> {}
