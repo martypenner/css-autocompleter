@@ -8,7 +8,7 @@ export function activate(context: vscode.ExtensionContext) {
   const config = vscode.workspace.getConfiguration();
   const engine = new AutocompletionEngine();
 
-  let filesToParse = getFilesToParseFromConfig(config);
+  let filesAndWatchers = getFilesToParseFromConfig(config, engine);
   if (vscode.workspace.workspaceFolders === undefined) {
     return;
   }
@@ -16,7 +16,9 @@ export function activate(context: vscode.ExtensionContext) {
   const disposable = vscode.commands.registerCommand(
     'css-to-go.addCssToAutocomplete',
     async (file) => {
-      const newList = Array.from(new Set(getFilesToParseFromConfig(config).concat(file.path)));
+      const newList = Array.from(getFilesToParseFromConfig(config, engine).keys()).concat(
+        file.path
+      );
       try {
         await config.update(filesConfigKey, newList, true);
       } catch (error) {
@@ -29,16 +31,18 @@ export function activate(context: vscode.ExtensionContext) {
   );
 
   vscode.workspace.onDidChangeWorkspaceFolders(() => {
+    cleanupFileWatchers(filesAndWatchers);
     // Re-filter the files to parse.
-    filesToParse = getFilesToParseFromConfig(config);
+    filesAndWatchers = getFilesToParseFromConfig(config, engine);
   });
 
-  // TODO: this doesn't work
   vscode.workspace.onDidChangeConfiguration((event) => {
     if (!event.affectsConfiguration(filesConfigKey)) {
       return;
     }
 
+    // TODO: these don't work
+    // cleanupFileWatchers(filesAndWatchers);
     // filesToParse = getFilesToParseFromConfig(config);
   });
 
@@ -71,7 +75,7 @@ export function activate(context: vscode.ExtensionContext) {
 
         // TODO: don't provide completions for classes already in the class list
         const rawCompletions: Completions = JSON.parse(
-          engine.getAllCompletionsAsString(filesToParse)
+          engine.getAllCompletionsAsString(Array.from(filesAndWatchers.keys()))
         );
         const completions = rawCompletions.map(([className, ruleSet]) => {
           const completion = new vscode.CompletionItem(
@@ -102,29 +106,16 @@ type ClassName = string;
 type RuleSet = string;
 type Completions = Array<[ClassName, RuleSet]>;
 
-// TODO : on files change, reload the completions
-function setupFileWatchers() {
-  // let filesAndTheirWatchers = new Map();
-  // for (const file of filesToParse) {
-  //   if (filesAndTheirWatchers.has(file)) {
-  //     console.warn(`Duplicate file found in file list: ${file}`);
-  //     continue;
-  //   }
-  //
-  //   const watcher = vscode.workspace.createFileSystemWatcher(
-  //     new vscode.RelativePattern(path.dirname(file), path.basename(file))
-  //   );
-  //
-  //   watcher.onDidChange((uri) => {});
-  //   watcher.onDidDelete((uri) => {
-  //     watcher.dispose();
-  //   });
-  //
-  //   filesAndTheirWatchers.set(file, watcher);
-  // }
+function cleanupFileWatchers(filesAndWatchers: Map<string, vscode.FileSystemWatcher>) {
+  for (const watcher of filesAndWatchers.values()) {
+    watcher.dispose();
+  }
 }
 
-function getFilesToParseFromConfig(config: vscode.WorkspaceConfiguration) {
+function getFilesToParseFromConfig(
+  config: vscode.WorkspaceConfiguration,
+  engine: AutocompletionEngine
+): Map<string, vscode.FileSystemWatcher> {
   let files = config.get(filesConfigKey, []) as string[];
   if (!Array.isArray(files)) {
     vscode.window.showErrorMessage(
@@ -140,7 +131,26 @@ function getFilesToParseFromConfig(config: vscode.WorkspaceConfiguration) {
       workspaceFolderNames.find((folder) => path.dirname(file).startsWith(folder)) !== undefined
   );
 
-  return files;
-}
+  const filesAndWatchers = new Map(
+    files.map((file) => {
+      const watcher = vscode.workspace.createFileSystemWatcher(
+        new vscode.RelativePattern(path.dirname(file), path.basename(file))
+      );
+      // This one gets fired when a file in our list does not exist until now.
+      watcher.onDidCreate(() => {
+        engine.invalidateCache();
+      });
+      watcher.onDidChange(() => {
+        engine.invalidateCache();
+      });
+      watcher.onDidDelete(() => {
+        watcher.dispose();
+        engine.invalidateCache();
+      });
 
-// function getWatcherForFiles(files: string[]): Map<string, vscode.FileSystemWatcher> {}
+      return [file, watcher];
+    })
+  );
+
+  return filesAndWatchers;
+}
