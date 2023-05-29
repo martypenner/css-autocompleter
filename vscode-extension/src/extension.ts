@@ -46,10 +46,8 @@ export function activate(context: vscode.ExtensionContext) {
       return;
     }
 
-    // TODO: these don't work. They give me the old values, not the new ones.
-
-    // cleanupFileWatchers(filesAndWatchers);
-    // filesToParse = getFilesToParseFromConfig(config);
+    cleanupFileWatchers(filesAndWatchers);
+    filesAndWatchers = getFilesToWatchAndParseFromConfig(config, engine);
   });
 
   const provider = vscode.languages.registerCompletionItemProvider(
