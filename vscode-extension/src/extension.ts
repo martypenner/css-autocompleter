@@ -47,7 +47,26 @@ export function activate(context: vscode.ExtensionContext) {
   });
 
   const provider = vscode.languages.registerCompletionItemProvider(
-    ['html'],
+    // TODO: allow the user to define their own languages.
+    [
+      // HTML languages
+      'html',
+      'vue',
+      'razor',
+      'blade',
+      'handlebars',
+      'twig',
+      'django-html',
+      'php',
+      'markdown',
+      'erb',
+      'ejs',
+      'svelte',
+      // JS languages
+      'javascript',
+      'javascriptreact',
+      'typescriptreact',
+    ],
     {
       provideCompletionItems(document: vscode.TextDocument, position: vscode.Position) {
         // Get the entire line text and search for `class=""`. We only want to
@@ -57,7 +76,7 @@ export function activate(context: vscode.ExtensionContext) {
         // will be bitten by a massive bug or a regex DOS attack and have to
         // rethink this, but it works for now.
         const line = document.lineAt(position).text;
-        const classRegex = /class=["'](?<classList>[^"']*)/giu;
+        const classRegex = /class(?:[nN](?:ame))?=["'](?<classList>[^"']*)/giu;
         const allMatches = line.matchAll(classRegex);
         const existingClassList = new Set();
 
