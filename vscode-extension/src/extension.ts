@@ -7,37 +7,44 @@ const FILES_LIST_KEY = 'filesList';
 const HTML_LANGUAGES_KEY = 'htmlLanguages';
 const JS_LANGUAGES_KEY = 'javascriptLanguages';
 
+// WARNING!!!
+// Caching `vscode.workspace.getConfiguration()` in a variable means you get stale values.
+// Always call it at the moment you need it instead.
 export function activate(context: vscode.ExtensionContext) {
-  const config = vscode.workspace.getConfiguration();
-  const engine = new AutocompletionEngine();
-
-  let filesAndWatchers = getFilesToWatchAndParseFromConfig(config, engine);
   if (vscode.workspace.workspaceFolders === undefined) {
     return;
   }
+
+  const config = vscode.workspace.getConfiguration;
+  const engine = new AutocompletionEngine();
+
+  let filesAndWatchers: FilesAndWatchers = getFilesToWatchAndParseFromConfig(config, engine);
 
   const languages = getLanguagesFromConfig(config);
 
   const command = vscode.commands.registerCommand(
     `${EXTENSION_NAME}.addCssToAutocomplete`,
     async (file) => {
-      const newList = getFilesToParseFromConfig(config).concat(file.path);
+      const newList = Array.from(new Set(getFilesToParseFromConfig(config).concat(file.path)));
 
-      config.update(`${EXTENSION_NAME}.${FILES_LIST_KEY}`, newList, true).then(
-        () => {},
-        (error) => {
-          vscode.window.showErrorMessage(
-            `We couldn't update your configuration for some reason. Please see the debug logs for more info.`
-          );
-          console.error(`We couldn't update your configuration for the following reason: ${error}`);
-        }
-      );
+      config()
+        .update(`${EXTENSION_NAME}.${FILES_LIST_KEY}`, newList, true)
+        .then(
+          () => {},
+          (error) => {
+            vscode.window.showErrorMessage(
+              `We couldn't update your configuration for some reason. Please see the debug logs for more info.`
+            );
+            console.error(
+              `We couldn't update your configuration for the following reason: ${error}`
+            );
+          }
+        );
     }
   );
 
   vscode.workspace.onDidChangeWorkspaceFolders(() => {
     cleanupFileWatchers(filesAndWatchers);
-    // Refresh the files to parse.
     filesAndWatchers = getFilesToWatchAndParseFromConfig(config, engine);
   });
 
@@ -120,15 +127,15 @@ export function activate(context: vscode.ExtensionContext) {
   context.subscriptions.push(command, provider);
 }
 
-function getLanguagesFromConfig(config: vscode.WorkspaceConfiguration) {
-  let htmlLanguages = config.get(`${EXTENSION_NAME}.${HTML_LANGUAGES_KEY}`, []);
+function getLanguagesFromConfig(config: typeof vscode.workspace.getConfiguration) {
+  let htmlLanguages = config().get(`${EXTENSION_NAME}.${HTML_LANGUAGES_KEY}`, []);
   if (!Array.isArray(htmlLanguages)) {
     vscode.window.showErrorMessage(
       `Found an invalid config value for ${HTML_LANGUAGES_KEY}. Expected an array of strings. Falling back to [].`
     );
     htmlLanguages = [];
   }
-  let javascriptLanguages = config.get(`${EXTENSION_NAME}.${JS_LANGUAGES_KEY}`, []);
+  let javascriptLanguages = config().get(`${EXTENSION_NAME}.${JS_LANGUAGES_KEY}`, []);
   if (!Array.isArray(javascriptLanguages)) {
     vscode.window.showErrorMessage(
       `Found an invalid config value for ${JS_LANGUAGES_KEY}. Expected an array of strings. Falling back to [].`
@@ -144,14 +151,16 @@ type ClassName = string;
 type RuleSet = string;
 type Completions = Array<[ClassName, RuleSet]>;
 
-function cleanupFileWatchers(filesAndWatchers: Map<string, vscode.FileSystemWatcher>) {
+type FilesAndWatchers = Map<string, vscode.FileSystemWatcher>;
+
+function cleanupFileWatchers(filesAndWatchers: FilesAndWatchers) {
   for (const watcher of filesAndWatchers.values()) {
     watcher.dispose();
   }
 }
 
 function getFilesToWatchAndParseFromConfig(
-  config: vscode.WorkspaceConfiguration,
+  config: typeof vscode.workspace.getConfiguration,
   engine: AutocompletionEngine
 ): Map<string, vscode.FileSystemWatcher> {
   const files = getFilesToParseFromConfig(config);
@@ -180,8 +189,8 @@ function getFilesToWatchAndParseFromConfig(
   return filesAndWatchers;
 }
 
-function getFilesToParseFromConfig(config: vscode.WorkspaceConfiguration) {
-  let files = config.get(`${EXTENSION_NAME}.${FILES_LIST_KEY}`, []) as string[];
+function getFilesToParseFromConfig(config: typeof vscode.workspace.getConfiguration): string[] {
+  let files: string[] = (config().get(`${EXTENSION_NAME}.${FILES_LIST_KEY}`) ?? []) as string[];
   if (!Array.isArray(files)) {
     vscode.window.showErrorMessage(
       `Found an invalid config value for ${FILES_LIST_KEY}. Expected an array of strings. Falling back to [].`
