@@ -7,6 +7,10 @@ const FILES_LIST_KEY = 'filesList';
 const HTML_LANGUAGES_KEY = 'htmlLanguages';
 const JS_LANGUAGES_KEY = 'javascriptLanguages';
 
+const config = vscode.workspace.getConfiguration;
+const engine = new AutocompletionEngine();
+let filesAndWatchers: FilesAndWatchers = getFilesToWatchAndParseFromConfig(config, engine);
+
 // WARNING!!!
 // Caching `vscode.workspace.getConfiguration()` in a variable means you get stale values.
 // Always call it at the moment you need it instead.
@@ -15,16 +19,10 @@ export function activate(context: vscode.ExtensionContext) {
     return;
   }
 
-  const config = vscode.workspace.getConfiguration;
-  const engine = new AutocompletionEngine();
-
-  let filesAndWatchers: FilesAndWatchers = getFilesToWatchAndParseFromConfig(config, engine);
-
   const languages = getLanguagesFromConfig(config);
 
-  const command = vscode.commands.registerCommand(
-    `${EXTENSION_NAME}.addCssToAutocomplete`,
-    async (file) => {
+  context.subscriptions.push(
+    vscode.commands.registerCommand(`${EXTENSION_NAME}.addCssToAutocomplete`, async (file) => {
       const newList = Array.from(new Set(getFilesToParseFromConfig(config).concat(file.path)));
 
       config()
@@ -40,91 +38,99 @@ export function activate(context: vscode.ExtensionContext) {
             );
           }
         );
-    }
+    })
   );
 
-  vscode.workspace.onDidChangeWorkspaceFolders(() => {
-    cleanupFileWatchers(filesAndWatchers);
-    filesAndWatchers = getFilesToWatchAndParseFromConfig(config, engine);
-  });
+  context.subscriptions.push(
+    vscode.workspace.onDidChangeWorkspaceFolders(() => {
+      cleanupFileWatchers(filesAndWatchers);
+      filesAndWatchers = getFilesToWatchAndParseFromConfig(config, engine);
+    })
+  );
 
-  vscode.workspace.onDidChangeConfiguration((event) => {
-    if (!event.affectsConfiguration(`${EXTENSION_NAME}`)) {
-      return;
-    }
+  context.subscriptions.push(
+    vscode.workspace.onDidChangeConfiguration((event) => {
+      if (!event.affectsConfiguration(`${EXTENSION_NAME}`)) {
+        return;
+      }
 
-    cleanupFileWatchers(filesAndWatchers);
-    filesAndWatchers = getFilesToWatchAndParseFromConfig(config, engine);
-  });
+      cleanupFileWatchers(filesAndWatchers);
+      filesAndWatchers = getFilesToWatchAndParseFromConfig(config, engine);
+    })
+  );
 
-  const provider = vscode.languages.registerCompletionItemProvider(
-    languages,
-    {
-      provideCompletionItems(document: vscode.TextDocument, position: vscode.Position) {
-        // Get the entire line text and search for `class=""`. We only want to
-        // trigger completions inside of that and nowhere else. I really wish we
-        // didn't have to resort to a regex, but setting up embedded languages
-        // and / or an entire language server seemed like overkill. Maybe we
-        // will be bitten by a massive bug or a regex DOS attack and have to
-        // rethink this, but it works for now.
-        const line = document.lineAt(position).text;
-        const classRegex = /class(?:[nN](?:ame))?=["'](?<classList>[^"']*)/giu;
-        const allMatches = line.matchAll(classRegex);
-        const existingClassList = new Set();
+  context.subscriptions.push(
+    vscode.languages.registerCompletionItemProvider(
+      languages,
+      {
+        provideCompletionItems(document: vscode.TextDocument, position: vscode.Position) {
+          // Get the entire line text and search for `class=""`. We only want to
+          // trigger completions inside of that and nowhere else. I really wish we
+          // didn't have to resort to a regex, but setting up embedded languages
+          // and / or an entire language server seemed like overkill. Maybe we
+          // will be bitten by a massive bug or a regex DOS attack and have to
+          // rethink this, but it works for now.
+          const line = document.lineAt(position).text;
+          const classRegex = /class(?:[nN](?:ame))?=["'](?<classList>[^"']*)/giu;
+          const allMatches = line.matchAll(classRegex);
+          const existingClassList = new Set();
 
-        for (const match of allMatches) {
-          // eslint-disable-next-line eqeqeq
-          if (match.index == null) {
-            continue;
+          for (const match of allMatches) {
+            // eslint-disable-next-line eqeqeq
+            if (match.index == null) {
+              continue;
+            }
+
+            const isWithinRange =
+              position.character >= match.index &&
+              position.character <= match.index + match[0].length;
+            if (!isWithinRange) {
+              return undefined;
+            }
+
+            const classList = match.groups?.classList.split(' ').filter(Boolean) ?? [];
+            for (const className of classList) {
+              existingClassList.add(className);
+            }
           }
 
-          const isWithinRange =
-            position.character >= match.index &&
-            position.character <= match.index + match[0].length;
-          if (!isWithinRange) {
-            return undefined;
-          }
-
-          const classList = match.groups?.classList.split(' ').filter(Boolean) ?? [];
-          for (const className of classList) {
-            existingClassList.add(className);
-          }
-        }
-
-        try {
-          const allCompletions: Completions = JSON.parse(
-            engine.getAllCompletionsAsString(Array.from(filesAndWatchers.keys()))
-          );
-          const allowedCompletions = allCompletions.filter(
-            ([className]) => !existingClassList.has(className)
-          );
-          const completions = allowedCompletions.map(([className, ruleSet]) => {
-            const completion = new vscode.CompletionItem(
-              className,
-              vscode.CompletionItemKind.Constant
+          try {
+            const allCompletions: Completions = JSON.parse(
+              engine.getAllCompletionsAsString(Array.from(filesAndWatchers.keys()))
             );
-            completion.documentation = new vscode.MarkdownString(
-              ['```css', ruleSet, '```'].join('\n')
+            const allowedCompletions = allCompletions.filter(
+              ([className]) => !existingClassList.has(className)
             );
+            const completions = allowedCompletions.map(([className, ruleSet]) => {
+              const completion = new vscode.CompletionItem(
+                className,
+                vscode.CompletionItemKind.Constant
+              );
+              completion.documentation = new vscode.MarkdownString(
+                ['```css', ruleSet, '```'].join('\n')
+              );
 
-            return completion;
-          });
+              return completion;
+            });
 
-          return completions;
-        } catch (error) {
-          vscode.window.showErrorMessage(
-            `Error parsing CSS completions from the autocompletion engine: ${error}`
-          );
-          console.error(`Error parsing CSS completions from the autocompletion engine: ${error}`);
-        }
+            return completions;
+          } catch (error) {
+            vscode.window.showErrorMessage(
+              `Error parsing CSS completions from the autocompletion engine: ${error}`
+            );
+            console.error(`Error parsing CSS completions from the autocompletion engine: ${error}`);
+          }
+        },
       },
-    },
-    "'",
-    '"',
-    ' '
+      "'",
+      '"',
+      ' '
+    )
   );
+}
 
-  context.subscriptions.push(command, provider);
+export function deactivate() {
+  cleanupFileWatchers(filesAndWatchers);
 }
 
 function getLanguagesFromConfig(config: typeof vscode.workspace.getConfiguration) {
@@ -144,8 +150,6 @@ function getLanguagesFromConfig(config: typeof vscode.workspace.getConfiguration
   }
   return htmlLanguages.concat(javascriptLanguages);
 }
-
-export function deactivate() {}
 
 type ClassName = string;
 type RuleSet = string;
