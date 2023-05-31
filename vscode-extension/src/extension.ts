@@ -43,7 +43,7 @@ export function activate(context: vscode.ExtensionContext) {
 
   context.subscriptions.push(
     vscode.workspace.onDidChangeWorkspaceFolders(() => {
-      cleanupFileWatchers(filesAndWatchers);
+      cleanupFileWatchers(filesAndWatchers, engine);
       filesAndWatchers = getFilesToWatchAndParseFromConfig(config, engine);
     })
   );
@@ -54,7 +54,7 @@ export function activate(context: vscode.ExtensionContext) {
         return;
       }
 
-      cleanupFileWatchers(filesAndWatchers);
+      cleanupFileWatchers(filesAndWatchers, engine);
       filesAndWatchers = getFilesToWatchAndParseFromConfig(config, engine);
     })
   );
@@ -130,7 +130,7 @@ export function activate(context: vscode.ExtensionContext) {
 }
 
 export function deactivate() {
-  cleanupFileWatchers(filesAndWatchers);
+  cleanupFileWatchers(filesAndWatchers, engine);
 }
 
 function getLanguagesFromConfig(config: typeof vscode.workspace.getConfiguration) {
@@ -157,10 +157,12 @@ type Completions = Array<[ClassName, RuleSet]>;
 
 type FilesAndWatchers = Map<string, vscode.FileSystemWatcher>;
 
-function cleanupFileWatchers(filesAndWatchers: FilesAndWatchers) {
+function cleanupFileWatchers(filesAndWatchers: FilesAndWatchers, engine: AutocompletionEngine) {
   for (const watcher of filesAndWatchers.values()) {
     watcher.dispose();
   }
+
+  engine.invalidateCache();
 }
 
 function getFilesToWatchAndParseFromConfig(
