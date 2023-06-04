@@ -1,5 +1,5 @@
 {
-  "name": "napi-rs-win32-x64-msvc",
+  "name": "autocompletion-engine-win32-x64-msvc",
   "version": "0.0.0",
   "os": [
     "win32"
@@ -7,9 +7,9 @@
   "cpu": [
     "x64"
   ],
-  "main": "napi-rs.win32-x64-msvc.node",
+  "main": "autocompletion-engine.win32-x64-msvc.node",
   "files": [
-    "napi-rs.win32-x64-msvc.node"
+    "autocompletion-engine.win32-x64-msvc.node"
   ],
   "license": "MIT",
   "engines": {

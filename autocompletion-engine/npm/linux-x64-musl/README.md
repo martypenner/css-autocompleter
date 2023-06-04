@@ -1,3 +1,3 @@
-# `napi-rs-linux-x64-musl`
+# `autocompletion-engine-linux-x64-musl`
 
-This is the **x86_64-unknown-linux-musl** binary for `napi-rs`
+This is the **x86_64-unknown-linux-musl** binary for `autocompletion-engine`

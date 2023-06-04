@@ -1,3 +1,3 @@
-# `napi-rs-linux-arm64-gnu`
+# `autocompletion-engine-linux-arm64-gnu`
 
-This is the **aarch64-unknown-linux-gnu** binary for `napi-rs`
+This is the **aarch64-unknown-linux-gnu** binary for `autocompletion-engine`

@@ -1,5 +1,5 @@
 {
-  "name": "napi-rs-linux-arm-gnueabihf",
+  "name": "autocompletion-engine-linux-arm-gnueabihf",
   "version": "0.0.0",
   "os": [
     "linux"
@@ -7,9 +7,9 @@
   "cpu": [
     "arm"
   ],
-  "main": "napi-rs.linux-arm-gnueabihf.node",
+  "main": "autocompletion-engine.linux-arm-gnueabihf.node",
   "files": [
-    "napi-rs.linux-arm-gnueabihf.node"
+    "autocompletion-engine.linux-arm-gnueabihf.node"
   ],
   "license": "MIT",
   "engines": {

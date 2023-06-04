@@ -1,3 +1,3 @@
-# `napi-rs-darwin-universal`
+# `autocompletion-engine-darwin-universal`
 
-This is the **universal-apple-darwin** binary for `napi-rs`
+This is the **universal-apple-darwin** binary for `autocompletion-engine`

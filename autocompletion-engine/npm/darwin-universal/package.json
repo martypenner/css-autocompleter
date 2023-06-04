@@ -1,12 +1,12 @@
 {
-  "name": "napi-rs-darwin-universal",
+  "name": "autocompletion-engine-darwin-universal",
   "version": "0.0.0",
   "os": [
     "darwin"
   ],
-  "main": "napi-rs.darwin-universal.node",
+  "main": "autocompletion-engine.darwin-universal.node",
   "files": [
-    "napi-rs.darwin-universal.node"
+    "autocompletion-engine.darwin-universal.node"
   ],
   "license": "MIT",
   "engines": {
