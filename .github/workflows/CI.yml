@@ -164,9 +164,6 @@ jobs:
     runs-on: macos-12
     name: Build FreeBSD
     steps:
-      - uses: pnpm/action-setup@v2
-        with:
-          version: "8.6.0"
       - uses: actions/checkout@v3
       - name: Build
         id: build
@@ -183,6 +180,7 @@ jobs:
           prepare: |
             pkg install -y -f curl node libnghttp2
             curl -qL https://www.npmjs.com/install.sh | sh
+            npm install --location=global --ignore-scripts pnpm
             curl https://sh.rustup.rs -sSf --output rustup.sh
             sh rustup.sh -y --profile minimal --default-toolchain beta
             export PATH="/usr/local/cargo/bin:$PATH"
