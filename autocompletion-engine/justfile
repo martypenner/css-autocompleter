@@ -2,13 +2,13 @@ export CARGO_FLAGS := env_var_or_default("CARGO_FLAGS", "--dev")
 export OUT_DIR := env_var_or_default("OUT_DIR", "dist")
 
 build:
-	CARGO_FLAGS="{{CARGO_FLAGS}}" pnpm build && (mkdir "{{OUT_DIR}}" 2>&- >/dev/null || true) && mv index.js index.d.ts *.node "{{OUT_DIR}}"
+	CARGO_FLAGS="{{CARGO_FLAGS}}" yarn build && (mkdir "{{OUT_DIR}}" 2>&- >/dev/null || true) && mv index.js index.d.ts *.node "{{OUT_DIR}}"
 
 build-debug:
-	pnpm build:debug && (mkdir "{{OUT_DIR}}" 2>&- >/dev/null || true) && mv index.js index.d.ts *.node "{{OUT_DIR}}"
+	yarn build:debug && (mkdir "{{OUT_DIR}}" 2>&- >/dev/null || true) && mv index.js index.d.ts *.node "{{OUT_DIR}}"
 
 watch:
-	pnpm watch
+	yarn watch
 
 test: test-rust test-napi
 
@@ -18,28 +18,28 @@ test-rust:
 test-napi:
 	# Need a full JS build for NAPI bindings.
 	CARGO_FLAGS="{{CARGO_FLAGS}}" just build-debug
-	pnpm test
+	yarn test
 
 test-watch:
 	# CARGO_FLAGS="{{CARGO_FLAGS}}" cargo watch test
-	pnpm test:watch
+	yarn test:watch
 
 lint:
 	cargo clippy --all-features --all-targets -- -D warnings
 
 fmt:
 	cargo fmt
-	pnpm fmt
+	yarn fmt
 
 clean:
 	cargo clean
 	rm -rf dist
 
 artifacts:
-	pnpm artifacts
+	yarn artifacts
 
 universal:
-	pnpm universal
+	yarn universal
 
 version:
-	pnpm version
+	yarn version

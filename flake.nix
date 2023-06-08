@@ -52,7 +52,6 @@
 
           # nodejs 18
           nodejs
-          nodePackages.pnpm
 
           just
           exa

@@ -1,0 +1,14 @@
+{
+  "name": "css-to-go-workspace",
+  "private": true,
+  "version": "0.0.0",
+  "license": "MIT",
+  "engines": {
+    "node": ">= 16"
+  },
+  "packageManager": "yarn@3.6.0",
+  "workspaces": [
+    "autocompletion-engine",
+    "vscode-extension"
+  ]
+}
