@@ -4,6 +4,8 @@ members = [
     "autocompletion-engine",
 ]
 
+resolver = "2"
+
 exclude = []
 
 [profile.release]
