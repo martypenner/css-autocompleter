@@ -101,5 +101,6 @@
   },
   "dependencies": {
     "esbuild": "^0.17.18"
-  }
+  },
+  "packageManager": "pnpm@8.6.0"
 }
