@@ -22,8 +22,6 @@ test-rust:
 	cargo test
 
 test-napi:
-	# Need a full JS build for NAPI bindings.
-	just build-debug
 	pnpm test
 
 test-watch:
