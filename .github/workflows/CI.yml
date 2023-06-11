@@ -206,11 +206,12 @@ jobs:
             pnpm test
             rm -rf node_modules
             rm -rf target
+            ls -lah autocompletion-engine
       - name: Upload artifact
         uses: actions/upload-artifact@v3
         with:
           name: bindings-freebsd
-          path: ${{ env.APP_NAME }}.*.node
+          path: ${{ env.BINDINGS_DIR }}/${{ env.APP_NAME }}.*.node
           if-no-files-found: error
   test-macOS-windows-binding:
     name: Test bindings on ${{ matrix.settings.target }} - node@${{ matrix.node }}
