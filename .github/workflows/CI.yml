@@ -19,6 +19,7 @@ on:
 defaults:
   run:
     shell: bash
+    working-directory: autocompletion-engine
 jobs:
   build:
     strategy:
