@@ -1,3 +1,4 @@
+import os from "node:os";
 import test from "ava";
 import { AutocompletionEngine } from "../index.js";
 
@@ -38,7 +39,11 @@ test("get completions from test css file", (t) => {
       "wrapper",
       "#peek .wrapper {\n  width: 860px !important;\n  padding: 0;\n}\n\n#peek2 .wrapper {\n  border: 1px solid red;\n}",
     ],
-  ];
+  ].map(([className, ruleSet]) => [
+    className,
+    // Replace newlines with OS-specific characters. Fixes windows test failures.
+    ruleSet.replaceAll(/(?<!}|\n)\n/gi, os.EOL),
+  ]);
 
   t.deepEqual(completions, expected);
 });
