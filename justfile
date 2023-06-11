@@ -17,6 +17,9 @@ clean: napi-clean extension-clean
 napi-build:
 	OUT_DIR=../vscode-extension/autocompletion-engine just -f autocompletion-engine/justfile build
 
+napi-build-debug:
+	OUT_DIR=../vscode-extension/autocompletion-engine just -f autocompletion-engine/justfile build-debug
+
 napi-watch:
 	OUT_DIR=../vscode-extension/autocompletion-engine just -f autocompletion-engine/justfile watch
 
@@ -42,7 +45,7 @@ extension-watch:
 extension-package:
 	just -f vscode-extension/justfile package
 
-extension-test:
+extension-test: napi-build-debug
 	just -f vscode-extension/justfile test
 
 extension-lint:

@@ -4,7 +4,7 @@ build:
 watch:
 	pnpm watch
 
-test:
+test: build
 	pnpm test
 
 lint:
