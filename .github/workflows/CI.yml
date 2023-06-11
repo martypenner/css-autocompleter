@@ -4,6 +4,7 @@ env:
   APP_NAME: autocompletion-engine
   BINDINGS_DIR: autocompletion-engine
   MACOSX_DEPLOYMENT_TARGET: "10.13"
+  PNPM_VERSION: "8.6.0"
 on:
   push:
     branches:
@@ -99,7 +100,7 @@ jobs:
     steps:
       - uses: pnpm/action-setup@v2
         with:
-          version: "8.6.0"
+          version: ${{ env.PNPM_VERSION }}
       - uses: actions/checkout@v3
       - name: Setup node
         uses: actions/setup-node@v3
@@ -231,6 +232,9 @@ jobs:
           - "18"
     runs-on: ${{ matrix.settings.host }}
     steps:
+      - uses: pnpm/action-setup@v2
+        with:
+          version: ${{ env.PNPM_VERSION }}
       - uses: actions/checkout@v3
       - name: Setup node
         uses: actions/setup-node@v3
@@ -263,6 +267,9 @@ jobs:
           - "18"
     runs-on: ubuntu-latest
     steps:
+      - uses: pnpm/action-setup@v2
+        with:
+          version: ${{ env.PNPM_VERSION }}
       - uses: actions/checkout@v3
       - name: Setup node
         uses: actions/setup-node@v3
@@ -295,6 +302,9 @@ jobs:
           - "18"
     runs-on: ubuntu-latest
     steps:
+      - uses: pnpm/action-setup@v2
+        with:
+          version: ${{ env.PNPM_VERSION }}
       - uses: actions/checkout@v3
       - name: Setup node
         uses: actions/setup-node@v3
@@ -329,6 +339,9 @@ jobs:
           - "18"
     runs-on: ubuntu-latest
     steps:
+      - uses: pnpm/action-setup@v2
+        with:
+          version: ${{ env.PNPM_VERSION }}
       - uses: actions/checkout@v3
       - name: Download artifacts
         uses: actions/download-artifact@v3
@@ -363,6 +376,9 @@ jobs:
       - build
     runs-on: ubuntu-latest
     steps:
+      - uses: pnpm/action-setup@v2
+        with:
+          version: ${{ env.PNPM_VERSION }}
       - uses: actions/checkout@v3
       - name: Download artifacts
         uses: actions/download-artifact@v3
@@ -403,6 +419,9 @@ jobs:
           - "18"
     runs-on: ubuntu-latest
     steps:
+      - uses: pnpm/action-setup@v2
+        with:
+          version: ${{ env.PNPM_VERSION }}
       - uses: actions/checkout@v3
       - name: Download artifacts
         uses: actions/download-artifact@v3
@@ -436,6 +455,9 @@ jobs:
       - build
     runs-on: macos-latest
     steps:
+      - uses: pnpm/action-setup@v2
+        with:
+          version: ${{ env.PNPM_VERSION }}
       - uses: actions/checkout@v3
       - name: Setup node
         uses: actions/setup-node@v3
