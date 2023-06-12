@@ -322,7 +322,7 @@ jobs:
         run: ls -R .
         shell: bash
       - name: Test bindings
-        run: docker run --rm -v $(pwd):/build -w /build node:${{ matrix.node }}-alpine sh -c "npm install -g pnpm && pnpm test"
+        run: docker run --rm -v $(pwd):/build -w /build node:${{ matrix.node }}-alpine sh -c "npm install -g pnpm && pnpm i && pnpm test"
   test-linux-aarch64-gnu-binding:
     name: Test bindings on aarch64-unknown-linux-gnu - node@${{ matrix.node }}
     needs:
@@ -365,6 +365,7 @@ jobs:
           run: |
             set -e
             npm i -g pnpm
+            pnpm i
             pnpm test
             ls -la
   test-linux-aarch64-musl-binding:
@@ -403,6 +404,7 @@ jobs:
           run: |
             set -e
             npm i -g pnpm
+            pnpm i
             pnpm test
   universal-macOS:
     name: Build universal macOS binary
