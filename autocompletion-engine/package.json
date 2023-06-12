@@ -39,7 +39,7 @@
     "build:debug": "napi build --platform",
     "watch": "echo 'TODO: add watch script'",
     "prepublishOnly": "napi prepublish -t npm",
-    "test": "pnpm build:debug && ava",
+    "test": "ava",
     "test:watch": "ava --watch",
     "fmt": "prettier --write . --ignore-path .gitignore",
     "universal": "napi universal",

@@ -21,7 +21,7 @@ test: test-rust test-napi
 test-rust:
 	cargo test
 
-test-napi:
+test-napi: build-debug
 	pnpm test
 
 test-watch:
