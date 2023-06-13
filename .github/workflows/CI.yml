@@ -163,6 +163,8 @@ jobs:
           path: ${{ env.APP_NAME }}.*.node
           if-no-files-found: error
   build-freebsd:
+    # Disabling for now
+    if: false
     runs-on: macos-12
     name: Build FreeBSD
     steps:
