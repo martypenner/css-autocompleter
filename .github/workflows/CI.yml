@@ -2,24 +2,20 @@ name: CI
 env:
   DEBUG: napi:*
   APP_NAME: autocompletion-engine
-  MACOSX_DEPLOYMENT_TARGET: "10.13"
-  PNPM_VERSION: "8.6.0"
-on:
+  MACOSX_DEPLOYMENT_TARGET: '10.13'
+'on':
   push:
     branches:
       - main
     tags-ignore:
-      - "**"
+      - '**'
     paths-ignore:
-      - "**/*.md"
+      - '**/*.md'
       - LICENSE
-      - "**/*.gitignore"
+      - '**/*.gitignore'
       - .editorconfig
       - docs/**
   pull_request: null
-defaults:
-  run:
-    shell: bash
 jobs:
   build:
     strategy:
@@ -29,33 +25,33 @@ jobs:
           - host: macos-latest
             target: x86_64-apple-darwin
             build: |
-              pnpm build
+              yarn build
               strip -x *.node
           - host: windows-latest
-            build: pnpm build
+            build: yarn build
             target: x86_64-pc-windows-msvc
           - host: windows-latest
             build: |
               rustup target add i686-pc-windows-msvc
-              pnpm build --target i686-pc-windows-msvc
-              pnpm test
+              yarn build --target i686-pc-windows-msvc
+              yarn test
             target: i686-pc-windows-msvc
           - host: ubuntu-latest
             target: x86_64-unknown-linux-gnu
             docker: ghcr.io/napi-rs/napi-rs/nodejs-rust:lts-debian
             build: |-
               set -e &&
-              pnpm build --target x86_64-unknown-linux-gnu &&
+              yarn build --target x86_64-unknown-linux-gnu &&
               strip *.node
           - host: ubuntu-latest
             target: x86_64-unknown-linux-musl
             docker: ghcr.io/napi-rs/napi-rs/nodejs-rust:lts-alpine
-            build: set -e && pnpm build && strip *.node
+            build: set -e && yarn build && strip *.node
           - host: macos-latest
             target: aarch64-apple-darwin
             build: |
               rustup target add aarch64-apple-darwin
-              pnpm build --target aarch64-apple-darwin
+              yarn build --target aarch64-apple-darwin
               strip -x *.node
           - host: ubuntu-latest
             target: aarch64-unknown-linux-gnu
@@ -63,7 +59,7 @@ jobs:
             build: |-
               set -e &&
               rustup target add aarch64-unknown-linux-gnu &&
-              pnpm build --target aarch64-unknown-linux-gnu &&
+              yarn build --target aarch64-unknown-linux-gnu &&
               aarch64-unknown-linux-gnu-strip *.node
           - host: ubuntu-latest
             target: armv7-unknown-linux-gnueabihf
@@ -72,13 +68,19 @@ jobs:
               sudo apt-get install gcc-arm-linux-gnueabihf -y
             build: |
               rustup target add armv7-unknown-linux-gnueabihf
-              pnpm build --target armv7-unknown-linux-gnueabihf
+              yarn build --target armv7-unknown-linux-gnueabihf
               arm-linux-gnueabihf-strip *.node
           - host: ubuntu-latest
             target: aarch64-linux-android
             build: |
               rustup target add aarch64-linux-android
-              pnpm build --target aarch64-linux-android
+              yarn build --target aarch64-linux-android
+              ${ANDROID_NDK_LATEST_HOME}/toolchains/llvm/prebuilt/linux-x86_64/bin/llvm-strip *.node
+          - host: ubuntu-latest
+            target: armv7-linux-androideabi
+            build: |
+              rustup target add armv7-linux-androideabi
+              yarn build --target armv7-linux-androideabi
               ${ANDROID_NDK_LATEST_HOME}/toolchains/llvm/prebuilt/linux-x86_64/bin/llvm-strip *.node
           - host: ubuntu-latest
             target: aarch64-unknown-linux-musl
@@ -86,19 +88,16 @@ jobs:
             build: |-
               set -e &&
               rustup target add aarch64-unknown-linux-musl &&
-              pnpm build --target aarch64-unknown-linux-musl &&
+              yarn build --target aarch64-unknown-linux-musl &&
               /aarch64-linux-musl-cross/bin/aarch64-linux-musl-strip *.node
           - host: windows-latest
             target: aarch64-pc-windows-msvc
             build: |
               rustup target add aarch64-pc-windows-msvc
-              pnpm build --target aarch64-pc-windows-msvc
+              yarn build --target aarch64-pc-windows-msvc
     name: stable - ${{ matrix.settings.target }} - node@18
     runs-on: ${{ matrix.settings.host }}
     steps:
-      - uses: pnpm/action-setup@v2
-        with:
-          version: ${{ env.PNPM_VERSION }}
       - uses: actions/checkout@v3
       - name: Setup node
         uses: actions/setup-node@v3
@@ -106,7 +105,7 @@ jobs:
         with:
           node-version: 18
           check-latest: true
-          cache: pnpm
+          cache: yarn
       - name: Install
         uses: dtolnay/rust-toolchain@stable
         if: ${{ !matrix.settings.docker }}
@@ -133,24 +132,24 @@ jobs:
         shell: bash
       - name: Setup node x86
         if: matrix.settings.target == 'i686-pc-windows-msvc'
-        run: pnpm config set supportedArchitectures.cpu "ia32"
+        run: yarn config set supportedArchitectures.cpu "ia32"
         shell: bash
       - name: Install dependencies
-        run: pnpm install
+        run: yarn install
       - name: Setup node x86
         uses: actions/setup-node@v3
         if: matrix.settings.target == 'i686-pc-windows-msvc'
         with:
           node-version: 18
           check-latest: true
-          cache: pnpm
+          cache: yarn
           architecture: x86
       - name: Build in docker
         uses: addnab/docker-run-action@v3
         if: ${{ matrix.settings.docker }}
         with:
           image: ${{ matrix.settings.docker }}
-          options: "--user 0:0 -v ${{ github.workspace }}/.cargo-cache/git/db:/usr/local/cargo/git/db -v ${{ github.workspace }}/.cargo/registry/cache:/usr/local/cargo/registry/cache -v ${{ github.workspace }}/.cargo/registry/index:/usr/local/cargo/registry/index -v ${{ github.workspace }}:/build -w /build"
+          options: '--user 0:0 -v ${{ github.workspace }}/.cargo-cache/git/db:/usr/local/cargo/git/db -v ${{ github.workspace }}/.cargo/registry/cache:/usr/local/cargo/registry/cache -v ${{ github.workspace }}/.cargo/registry/index:/usr/local/cargo/registry/index -v ${{ github.workspace }}:/build -w /build'
           run: ${{ matrix.settings.build }}
       - name: Build
         run: ${{ matrix.settings.build }}
@@ -163,7 +162,7 @@ jobs:
           path: ${{ env.APP_NAME }}.*.node
           if-no-files-found: error
   build-freebsd:
-    # Disabling for now
+    # Disabled for now
     if: false
     runs-on: macos-12
     name: Build FreeBSD
@@ -184,7 +183,7 @@ jobs:
           prepare: |
             pkg install -y -f curl node libnghttp2
             curl -qL https://www.npmjs.com/install.sh | sh
-            npm install --location=global --ignore-scripts pnpm
+            npm install --location=global --ignore-scripts yarn
             curl https://sh.rustup.rs -sSf --output rustup.sh
             sh rustup.sh -y --profile minimal --default-toolchain beta
             export PATH="/usr/local/cargo/bin:$PATH"
@@ -192,8 +191,8 @@ jobs:
             rustc --version
             echo "~~~~ node -v ~~~~"
             node -v
-            echo "~~~~ pnpm --version ~~~~"
-            pnpm --version
+            echo "~~~~ yarn --version ~~~~"
+            yarn --version
           run: |
             export PATH="/usr/local/cargo/bin:$PATH"
             pwd
@@ -201,12 +200,13 @@ jobs:
             whoami
             env
             freebsd-version
-            pnpm install
-            pnpm build
+            yarn install
+            yarn build
             strip -x *.node
-            pnpm test
+            yarn test
             rm -rf node_modules
             rm -rf target
+            rm -rf .yarn/cache
       - name: Upload artifact
         uses: actions/upload-artifact@v3
         with:
@@ -224,22 +224,19 @@ jobs:
           - host: windows-latest
             target: x86_64-pc-windows-msvc
         node:
-          - "16"
-          - "18"
+          - '16'
+          - '18'
     runs-on: ${{ matrix.settings.host }}
     steps:
-      - uses: pnpm/action-setup@v2
-        with:
-          version: ${{ env.PNPM_VERSION }}
       - uses: actions/checkout@v3
       - name: Setup node
         uses: actions/setup-node@v3
         with:
           node-version: ${{ matrix.node }}
           check-latest: true
-          cache: pnpm
+          cache: yarn
       - name: Install dependencies
-        run: pnpm install
+        run: yarn install
       - name: Download artifacts
         uses: actions/download-artifact@v3
         with:
@@ -249,7 +246,7 @@ jobs:
         run: ls -R .
         shell: bash
       - name: Test bindings
-        run: pnpm build && pnpm test
+        run: yarn test
   test-linux-x64-gnu-binding:
     name: Test bindings on Linux-x64-gnu - node@${{ matrix.node }}
     needs:
@@ -258,22 +255,19 @@ jobs:
       fail-fast: false
       matrix:
         node:
-          - "16"
-          - "18"
+          - '16'
+          - '18'
     runs-on: ubuntu-latest
     steps:
-      - uses: pnpm/action-setup@v2
-        with:
-          version: ${{ env.PNPM_VERSION }}
       - uses: actions/checkout@v3
       - name: Setup node
         uses: actions/setup-node@v3
         with:
           node-version: ${{ matrix.node }}
           check-latest: true
-          cache: pnpm
+          cache: yarn
       - name: Install dependencies
-        run: pnpm install
+        run: yarn install
       - name: Download artifacts
         uses: actions/download-artifact@v3
         with:
@@ -283,7 +277,7 @@ jobs:
         run: ls -R .
         shell: bash
       - name: Test bindings
-        run: docker run --rm -v $(pwd):/build -w /build node:${{ matrix.node }}-slim sh -c "npm i -g pnpm && pnpm i --force && pnpm build && pnpm test"
+        run: docker run --rm -v $(pwd):/build -w /build node:${{ matrix.node }}-slim yarn test
   test-linux-x64-musl-binding:
     name: Test bindings on x86_64-unknown-linux-musl - node@${{ matrix.node }}
     needs:
@@ -292,24 +286,21 @@ jobs:
       fail-fast: false
       matrix:
         node:
-          - "16"
-          - "18"
+          - '16'
+          - '18'
     runs-on: ubuntu-latest
     steps:
-      - uses: pnpm/action-setup@v2
-        with:
-          version: ${{ env.PNPM_VERSION }}
       - uses: actions/checkout@v3
       - name: Setup node
         uses: actions/setup-node@v3
         with:
           node-version: ${{ matrix.node }}
           check-latest: true
-          cache: pnpm
+          cache: yarn
       - name: Install dependencies
         run: |
-          pnpm config set supportedArchitectures.libc "musl"
-          pnpm install
+          yarn config set supportedArchitectures.libc "musl"
+          yarn install
       - name: Download artifacts
         uses: actions/download-artifact@v3
         with:
@@ -319,7 +310,7 @@ jobs:
         run: ls -R .
         shell: bash
       - name: Test bindings
-        run: docker run --rm -v $(pwd):/build -w /build node:${{ matrix.node }}-alpine sh -c "npm install -g pnpm && pnpm i --force && pnpm build && pnpm test"
+        run: docker run --rm -v $(pwd):/build -w /build node:${{ matrix.node }}-alpine yarn test
   test-linux-aarch64-gnu-binding:
     name: Test bindings on aarch64-unknown-linux-gnu - node@${{ matrix.node }}
     needs:
@@ -328,13 +319,10 @@ jobs:
       fail-fast: false
       matrix:
         node:
-          - "16"
-          - "18"
+          - '16'
+          - '18'
     runs-on: ubuntu-latest
     steps:
-      - uses: pnpm/action-setup@v2
-        with:
-          version: ${{ env.PNPM_VERSION }}
       - uses: actions/checkout@v3
       - name: Download artifacts
         uses: actions/download-artifact@v3
@@ -346,9 +334,9 @@ jobs:
         shell: bash
       - name: Install dependencies
         run: |
-          pnpm config set supportedArchitectures.cpu "arm64"
-          pnpm config set supportedArchitectures.libc "glibc"
-          pnpm install
+          yarn config set supportedArchitectures.cpu "arm64"
+          yarn config set supportedArchitectures.libc "glibc"
+          yarn install
       - name: Set up QEMU
         uses: docker/setup-qemu-action@v2
         with:
@@ -358,13 +346,10 @@ jobs:
         uses: addnab/docker-run-action@v3
         with:
           image: node:${{ matrix.node }}-slim
-          options: "--platform linux/arm64 -v ${{ github.workspace }}:/build -w /build"
+          options: '--platform linux/arm64 -v ${{ github.workspace }}:/build -w /build'
           run: |
             set -e
-            npm i -g pnpm
-            pnpm i
-            pnpm build
-            pnpm test
+            yarn test
             ls -la
   test-linux-aarch64-musl-binding:
     name: Test bindings on aarch64-unknown-linux-musl - node@${{ matrix.node }}
@@ -372,9 +357,6 @@ jobs:
       - build
     runs-on: ubuntu-latest
     steps:
-      - uses: pnpm/action-setup@v2
-        with:
-          version: ${{ env.PNPM_VERSION }}
       - uses: actions/checkout@v3
       - name: Download artifacts
         uses: actions/download-artifact@v3
@@ -386,9 +368,9 @@ jobs:
         shell: bash
       - name: Install dependencies
         run: |
-          pnpm config set supportedArchitectures.cpu "arm64"
-          pnpm config set supportedArchitectures.libc "musl"
-          pnpm install
+          yarn config set supportedArchitectures.cpu "arm64"
+          yarn config set supportedArchitectures.libc "musl"
+          yarn install
       - name: Set up QEMU
         uses: docker/setup-qemu-action@v2
         with:
@@ -398,31 +380,25 @@ jobs:
         uses: addnab/docker-run-action@v3
         with:
           image: node:lts-alpine
-          options: "--platform linux/arm64 -v ${{ github.workspace }}:/build -w /build"
+          options: '--platform linux/arm64 -v ${{ github.workspace }}:/build -w /build'
           run: |
             set -e
-            npm i -g pnpm
-            pnpm i
-            pnpm build
-            pnpm test
+            yarn test
   universal-macOS:
     name: Build universal macOS binary
     needs:
       - build
     runs-on: macos-latest
     steps:
-      - uses: pnpm/action-setup@v2
-        with:
-          version: ${{ env.PNPM_VERSION }}
       - uses: actions/checkout@v3
       - name: Setup node
         uses: actions/setup-node@v3
         with:
           node-version: 18
           check-latest: true
-          cache: pnpm
+          cache: yarn
       - name: Install dependencies
-        run: pnpm install
+        run: yarn install
       - name: Download macOS x64 artifact
         uses: actions/download-artifact@v3
         with:
@@ -434,7 +410,7 @@ jobs:
           name: bindings-aarch64-apple-darwin
           path: artifacts
       - name: Combine binaries
-        run: pnpm universal
+        run: yarn universal
       - name: Upload artifact
         uses: actions/upload-artifact@v3
         with:
@@ -460,15 +436,15 @@ jobs:
         with:
           node-version: 18
           check-latest: true
-          cache: pnpm
+          cache: yarn
       - name: Install dependencies
-        run: pnpm install
+        run: yarn install
       - name: Download all artifacts
         uses: actions/download-artifact@v3
         with:
           path: artifacts
       - name: Move artifacts
-        run: pnpm artifacts
+        run: yarn artifacts
       - name: List packages
         run: ls -R ./npm
         shell: bash

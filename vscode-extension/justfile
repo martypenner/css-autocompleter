@@ -1,17 +1,17 @@
 build:
-	pnpm compile
+	yarn compile
 
 watch:
-	pnpm watch
+	yarn watch
 
 test: build
-	pnpm test
+	yarn test
 
 lint:
-	pnpm lint
+	yarn lint
 
 fmt:
-	pnpm fmt
+	yarn fmt
 
 clean:
 	rm -rf dist out autocompletion-engine

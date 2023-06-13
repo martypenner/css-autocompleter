@@ -1,5 +1,5 @@
 {
-  "name": "css-to-go",
+  "name": "css-to-go-workspace",
   "private": true,
   "version": "0.0.0",
   "license": "MIT",
@@ -13,7 +13,7 @@
     "prepublishOnly": "napi prepublish -t npm",
     "test": "ava",
     "test:watch": "ava --watch",
-    "fmt": "prettier --write . --ignore-path .gitignore",
+    "fmt": "prettier --write . --ignore-path .gitignore '!.yarn/**/*' '!__test__/**/*.css'",
     "universal": "napi universal",
     "version": "napi version"
   },
@@ -49,5 +49,8 @@
       ]
     }
   },
-  "packageManager": "pnpm@8.6.0"
+  "workspaces": [
+    "vscode-extension"
+  ],
+  "packageManager": "yarn@3.6.0"
 }

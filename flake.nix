@@ -52,7 +52,7 @@
 
           # nodejs 18
           nodejs
-          nodePackages.pnpm
+          yarn
 
           just
           exa

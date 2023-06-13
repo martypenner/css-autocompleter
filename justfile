@@ -19,44 +19,44 @@ clean: napi-clean extension-clean
 napi-build:
   #! /usr/bin/env bash
   set -eu
-  pnpm build
+  yarn build
   OUT_DIR=./vscode-extension/autocompletion-engine bash -c '(mkdir "$OUT_DIR" 2>&- >/dev/null || true) && mv index.js index.d.ts *.node "$OUT_DIR"'
 
 napi-build-debug:
-  pnpm build:debug
+  yarn build:debug
 
 napi-watch:
   #! /usr/bin/env bash
   set -eu
-  pnpm watch
+  yarn watch
   OUT_DIR=./vscode-extension/autocompletion-engine bash -c '(mkdir "$OUT_DIR" 2>&- >/dev/null || true) && mv index.js index.d.ts *.node "$OUT_DIR"'
 
 napi-test: napi-build-debug
   cargo test
-  pnpm test
+  yarn test
 
 napi-lint:
   cargo clippy --all-features --all-targets -- -D warnings
 
 napi-fmt:
   cargo fmt
-  pnpm fmt
+  yarn fmt
 
 napi-clean:
   cargo clean
   rm -rf dist index.js index.d.ts
 
 test-watch: napi-build-debug
-  pnpm test:watch
+  yarn test:watch
 
 artifacts:
-  pnpm artifacts
+  yarn artifacts
 
 universal:
-  pnpm universal
+  yarn universal
 
 version:
-  pnpm version
+  yarn version
 
 # JS
 extension-build:
