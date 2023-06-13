@@ -194,7 +194,5 @@ $RECYCLE.BIN/
 !.yarn/versions
 
 *.node
-index.js
-index.d.ts
 
 .direnv/
