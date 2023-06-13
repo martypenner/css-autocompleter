@@ -205,7 +205,6 @@ jobs:
             pnpm test
             rm -rf node_modules
             rm -rf target
-            ls -lah autocompletion-engine
       - name: Upload artifact
         uses: actions/upload-artifact@v3
         with:
@@ -248,7 +247,7 @@ jobs:
         run: ls -R .
         shell: bash
       - name: Test bindings
-        run: pnpm test
+        run: pnpm build && pnpm test
   test-linux-x64-gnu-binding:
     name: Test bindings on Linux-x64-gnu - node@${{ matrix.node }}
     needs:
