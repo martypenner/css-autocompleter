@@ -2,7 +2,6 @@ name: CI
 env:
   DEBUG: napi:*
   APP_NAME: autocompletion-engine
-  BINDINGS_DIR: autocompletion-engine
   MACOSX_DEPLOYMENT_TARGET: "10.13"
   PNPM_VERSION: "8.6.0"
 on:
@@ -21,7 +20,6 @@ on:
 defaults:
   run:
     shell: bash
-    working-directory: autocompletion-engine
 jobs:
   build:
     strategy:
@@ -152,7 +150,7 @@ jobs:
         if: ${{ matrix.settings.docker }}
         with:
           image: ${{ matrix.settings.docker }}
-          options: "--user 0:0 -v ${{ github.workspace }}/.cargo-cache/git/db:/usr/local/cargo/git/db -v ${{ github.workspace }}/.cargo/registry/cache:/usr/local/cargo/registry/cache -v ${{ github.workspace }}/.cargo/registry/index:/usr/local/cargo/registry/index -v ${{ github.workspace }}:/build -w /build/autocompletion-engine"
+          options: "--user 0:0 -v ${{ github.workspace }}/.cargo-cache/git/db:/usr/local/cargo/git/db -v ${{ github.workspace }}/.cargo/registry/cache:/usr/local/cargo/registry/cache -v ${{ github.workspace }}/.cargo/registry/index:/usr/local/cargo/registry/index -v ${{ github.workspace }}:/build -w /build"
           run: ${{ matrix.settings.build }}
       - name: Build
         run: ${{ matrix.settings.build }}
@@ -162,11 +160,9 @@ jobs:
         uses: actions/upload-artifact@v3
         with:
           name: bindings-${{ matrix.settings.target }}
-          path: ${{ env.BINDINGS_DIR }}/${{ env.APP_NAME }}.*.node
+          path: ${{ env.APP_NAME }}.*.node
           if-no-files-found: error
   build-freebsd:
-    # disabled for now
-    if: false
     runs-on: macos-12
     name: Build FreeBSD
     steps:
@@ -214,7 +210,7 @@ jobs:
         uses: actions/upload-artifact@v3
         with:
           name: bindings-freebsd
-          path: ${{ env.BINDINGS_DIR }}/${{ env.APP_NAME }}.*.node
+          path: ${{ env.APP_NAME }}.*.node
           if-no-files-found: error
   test-macOS-windows-binding:
     name: Test bindings on ${{ matrix.settings.target }} - node@${{ matrix.node }}
@@ -442,7 +438,7 @@ jobs:
         uses: actions/upload-artifact@v3
         with:
           name: bindings-universal-apple-darwin
-          path: ${{ env.BINDINGS_DIR }}/${{ env.APP_NAME }}.*.node
+          path: ${{ env.APP_NAME }}.*.node
           if-no-files-found: error
   publish:
     if: false

@@ -121,7 +121,7 @@ dist
 .AppleDouble
 .LSOverride
 
-# Icon must end with two
+# Icon must end with two 
 Icon
 
 
@@ -183,7 +183,7 @@ $RECYCLE.BIN/
 
 #Added by cargo
 
-target
+/target
 
 .pnp.*
 .yarn/*
@@ -194,5 +194,7 @@ target
 !.yarn/versions
 
 *.node
+index.js
+index.d.ts
 
 .direnv/

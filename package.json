@@ -1,10 +1,53 @@
 {
-  "name": "css-to-go-workspace",
+  "name": "css-to-go",
   "private": true,
   "version": "0.0.0",
   "license": "MIT",
+  "main": "index.js",
+  "types": "index.d.ts",
+  "scripts": {
+    "artifacts": "napi artifacts",
+    "build": "napi build --platform --release",
+    "build:debug": "napi build --platform",
+    "watch": "echo 'TODO: add watch script'",
+    "prepublishOnly": "napi prepublish -t npm",
+    "test": "ava",
+    "test:watch": "ava --watch",
+    "fmt": "prettier --write . --ignore-path .gitignore",
+    "universal": "napi universal",
+    "version": "napi version"
+  },
+  "devDependencies": {
+    "@napi-rs/cli": "^2.16.1",
+    "ava": "^5.1.1",
+    "prettier": "^2.8.8"
+  },
+  "ava": {
+    "timeout": "3m",
+    "files": [
+      "__test__/**/*"
+    ]
+  },
   "engines": {
     "node": ">= 16"
+  },
+  "napi": {
+    "name": "autocompletion-engine",
+    "triples": {
+      "additional": [
+        "aarch64-apple-darwin",
+        "aarch64-linux-android",
+        "aarch64-unknown-linux-gnu",
+        "aarch64-unknown-linux-musl",
+        "aarch64-pc-windows-msvc",
+        "armv7-unknown-linux-gnueabihf",
+        "x86_64-unknown-linux-musl",
+        "x86_64-unknown-freebsd",
+        "i686-pc-windows-msvc",
+        "armv7-linux-androideabi",
+        "universal-apple-darwin"
+      ]
+    }
   },
   "packageManager": "pnpm@8.6.0"
 }

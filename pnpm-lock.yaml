@@ -6,9 +6,7 @@ settings:
 
 importers:
 
-  .: {}
-
-  autocompletion-engine:
+  .:
     devDependencies:
       '@napi-rs/cli':
         specifier: ^2.16.1
