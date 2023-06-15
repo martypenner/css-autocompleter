@@ -183,7 +183,7 @@ $RECYCLE.BIN/
 
 #Added by cargo
 
-target
+/target
 
 .pnp.*
 .yarn/*
@@ -194,8 +194,3 @@ target
 !.yarn/versions
 
 *.node
-
-.direnv/
-.turbo
-dist/
-out/

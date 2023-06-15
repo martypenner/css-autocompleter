@@ -77,13 +77,13 @@
     }
   },
   "scripts": {
-    "compile": "tsc -p ./",
-    "watch": "echo 'Be sure to build the NAPI portion before iterating on the extension' && tsc -watch -p ./",
+    "dev": "tsc -watch -p ./",
+    "build": "tsc -p ./",
     "lint": "eslint src --ext ts",
-    "fmt": "prettier --write . --ignore-path .gitignore",
     "test": "node ./out/test/runTest.js",
     "vscode:prepublish": "npm run compile",
-    "package": "echo 'TODO: package using vsce'"
+    "package": "echo 'TODO: package using vsce'",
+    "clean": "rm -rf dist out autocompletion-engine"
   },
   "devDependencies": {
     "@types/glob": "^8.1.0",
@@ -93,6 +93,7 @@
     "@typescript-eslint/eslint-plugin": "^5.56.0",
     "@typescript-eslint/parser": "^5.56.0",
     "@vscode/test-electron": "^2.3.0",
+    "autocompletion-engine": "*",
     "eslint": "^8.36.0",
     "glob": "^8.1.0",
     "mocha": "^10.2.0",
@@ -101,6 +102,5 @@
   },
   "dependencies": {
     "esbuild": "^0.17.18"
-  },
-  "packageManager": "yarn@3.6.0"
+  }
 }

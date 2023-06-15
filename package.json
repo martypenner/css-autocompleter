@@ -3,54 +3,28 @@
   "private": true,
   "version": "0.0.0",
   "license": "MIT",
-  "main": "index.js",
-  "types": "index.d.ts",
   "scripts": {
-    "artifacts": "napi artifacts",
-    "build": "napi build --platform --release",
-    "build:debug": "napi build --platform",
-    "watch": "echo 'TODO: add watch script'",
-    "prepublishOnly": "napi prepublish -t npm",
-    "test": "ava",
-    "test:watch": "ava --watch",
-    "fmt": "prettier --write . --ignore-path .gitignore '!.yarn/**/*' '!__test__/**/*.css'",
-    "universal": "napi universal",
-    "version": "napi version"
+    "dev": "concurrently -n vscode,autocompletion-engine -c green,yellow 'npm run dev:js' 'npm run dev:rust'",
+    "build": "turbo run build",
+    "test": "turbo run test",
+    "test:watch": "turbo run test:watch",
+    "lint": "turbo run lint",
+    "dev:rust": "npm run --prefix ./autocompletion-engine dev",
+    "dev:js": "npm run --prefix ./vscode-extension dev",
+    "fmt": "prettier --write . --ignore-path .gitignore '!autocompletion-engine/__test__/**/*.css' '!autocompletion-engine/*.js' '!autocompletion-engine/*.ts' && nix fmt && (cd autocompletion-engine && cargo fmt)",
+    "clean": "turbo run clean",
+    "prepublishOnly": "npm install --force && npm run build"
   },
   "devDependencies": {
-    "@napi-rs/cli": "^2.16.1",
-    "ava": "^5.1.1",
-    "prettier": "^2.8.8"
-  },
-  "ava": {
-    "timeout": "3m",
-    "files": [
-      "__test__/**/*"
-    ]
-  },
-  "engines": {
-    "node": ">= 16"
-  },
-  "napi": {
-    "name": "autocompletion-engine",
-    "triples": {
-      "additional": [
-        "aarch64-apple-darwin",
-        "aarch64-linux-android",
-        "aarch64-unknown-linux-gnu",
-        "aarch64-unknown-linux-musl",
-        "aarch64-pc-windows-msvc",
-        "armv7-unknown-linux-gnueabihf",
-        "x86_64-unknown-linux-musl",
-        "x86_64-unknown-freebsd",
-        "i686-pc-windows-msvc",
-        "armv7-linux-androideabi",
-        "universal-apple-darwin"
-      ]
-    }
+    "concurrently": "^8.2.0",
+    "prettier": "^2.8.8",
+    "turbo": "^1.10.3"
   },
   "workspaces": [
+    "autocompletion-engine",
     "vscode-extension"
   ],
-  "packageManager": "yarn@3.6.0"
+  "engines": {
+    "node": ">= 18"
+  }
 }

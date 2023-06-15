@@ -1,6 +1,6 @@
 import * as vscode from 'vscode';
 import * as path from 'node:path';
-import { AutocompletionEngine } from '../autocompletion-engine';
+import { AutocompletionEngine } from 'autocompletion-engine';
 
 const EXTENSION_NAME = 'css-to-go';
 const FILES_LIST_KEY = 'filesList';

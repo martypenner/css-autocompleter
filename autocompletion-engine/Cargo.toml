@@ -16,8 +16,7 @@ napi = { version = "2.12.2", default-features = false, features = ["napi4"] }
 napi-derive = "2.12.2"
 serde_json = "1.0.96"
 tree-sitter = "0.20.10"
-# Pin to main at the time of commit
-tree-sitter-css = { git = "https://github.com/tree-sitter/tree-sitter-css.git", rev = "769203d0f9abe1a9a691ac2b9fe4bb4397a73c51" }
+tree-sitter-css = { git = "https://github.com/tree-sitter/tree-sitter-css.git", version = "0.19.0" }
 
 [build-dependencies]
 napi-build = "2.0.1"

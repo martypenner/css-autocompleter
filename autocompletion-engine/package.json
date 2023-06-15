@@ -1,0 +1,50 @@
+{
+  "name": "autocompletion-engine",
+  "version": "0.0.0",
+  "main": "index.js",
+  "types": "index.d.ts",
+  "napi": {
+    "name": "autocompletion-engine",
+    "triples": {
+      "additional": [
+        "aarch64-apple-darwin",
+        "aarch64-linux-android",
+        "aarch64-unknown-linux-gnu",
+        "aarch64-unknown-linux-musl",
+        "aarch64-pc-windows-msvc",
+        "armv7-unknown-linux-gnueabihf",
+        "x86_64-unknown-linux-musl",
+        "x86_64-unknown-freebsd",
+        "i686-pc-windows-msvc",
+        "armv7-linux-androideabi",
+        "universal-apple-darwin"
+      ]
+    }
+  },
+  "license": "MIT",
+  "devDependencies": {
+    "@napi-rs/cli": "^2.16.1",
+    "ava": "^5.1.1",
+    "concurrently": "^8.2.0"
+  },
+  "ava": {
+    "timeout": "3m"
+  },
+  "engines": {
+    "node": ">= 18"
+  },
+  "scripts": {
+    "dev": "cargo watch --quiet -x check -x build",
+    "build": "napi build --platform --release",
+    "build:debug": "napi build --platform",
+    "bench": "cargo bench",
+    "postbench": "open ./target/criterion/report/index.html",
+    "lint": "cargo clippy --all-features --all-targets -- -D warnings",
+    "test": "cargo test && ava",
+    "test:watch": "concurrently -n rust,node -c green,yellow 'cargo watch --quiet -x test' 'ava --watch'",
+    "universal": "napi universal",
+    "prepublishOnly": "napi prepublish -t npm",
+    "version": "napi version",
+    "clean": "cargo clean && rm -rf *.node"
+  }
+}

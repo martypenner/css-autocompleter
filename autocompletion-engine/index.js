@@ -37,7 +37,7 @@ switch (platform) {
           if (localFileExisted) {
             nativeBinding = require('./autocompletion-engine.android-arm64.node')
           } else {
-            nativeBinding = require('css-to-go-workspace-android-arm64')
+            nativeBinding = require('autocompletion-engine-android-arm64')
           }
         } catch (e) {
           loadError = e
@@ -49,7 +49,7 @@ switch (platform) {
           if (localFileExisted) {
             nativeBinding = require('./autocompletion-engine.android-arm-eabi.node')
           } else {
-            nativeBinding = require('css-to-go-workspace-android-arm-eabi')
+            nativeBinding = require('autocompletion-engine-android-arm-eabi')
           }
         } catch (e) {
           loadError = e
@@ -69,7 +69,7 @@ switch (platform) {
           if (localFileExisted) {
             nativeBinding = require('./autocompletion-engine.win32-x64-msvc.node')
           } else {
-            nativeBinding = require('css-to-go-workspace-win32-x64-msvc')
+            nativeBinding = require('autocompletion-engine-win32-x64-msvc')
           }
         } catch (e) {
           loadError = e
@@ -83,7 +83,7 @@ switch (platform) {
           if (localFileExisted) {
             nativeBinding = require('./autocompletion-engine.win32-ia32-msvc.node')
           } else {
-            nativeBinding = require('css-to-go-workspace-win32-ia32-msvc')
+            nativeBinding = require('autocompletion-engine-win32-ia32-msvc')
           }
         } catch (e) {
           loadError = e
@@ -97,7 +97,7 @@ switch (platform) {
           if (localFileExisted) {
             nativeBinding = require('./autocompletion-engine.win32-arm64-msvc.node')
           } else {
-            nativeBinding = require('css-to-go-workspace-win32-arm64-msvc')
+            nativeBinding = require('autocompletion-engine-win32-arm64-msvc')
           }
         } catch (e) {
           loadError = e
@@ -113,7 +113,7 @@ switch (platform) {
       if (localFileExisted) {
         nativeBinding = require('./autocompletion-engine.darwin-universal.node')
       } else {
-        nativeBinding = require('css-to-go-workspace-darwin-universal')
+        nativeBinding = require('autocompletion-engine-darwin-universal')
       }
       break
     } catch {}
@@ -124,7 +124,7 @@ switch (platform) {
           if (localFileExisted) {
             nativeBinding = require('./autocompletion-engine.darwin-x64.node')
           } else {
-            nativeBinding = require('css-to-go-workspace-darwin-x64')
+            nativeBinding = require('autocompletion-engine-darwin-x64')
           }
         } catch (e) {
           loadError = e
@@ -138,7 +138,7 @@ switch (platform) {
           if (localFileExisted) {
             nativeBinding = require('./autocompletion-engine.darwin-arm64.node')
           } else {
-            nativeBinding = require('css-to-go-workspace-darwin-arm64')
+            nativeBinding = require('autocompletion-engine-darwin-arm64')
           }
         } catch (e) {
           loadError = e
@@ -157,7 +157,7 @@ switch (platform) {
       if (localFileExisted) {
         nativeBinding = require('./autocompletion-engine.freebsd-x64.node')
       } else {
-        nativeBinding = require('css-to-go-workspace-freebsd-x64')
+        nativeBinding = require('autocompletion-engine-freebsd-x64')
       }
     } catch (e) {
       loadError = e
@@ -174,7 +174,7 @@ switch (platform) {
             if (localFileExisted) {
               nativeBinding = require('./autocompletion-engine.linux-x64-musl.node')
             } else {
-              nativeBinding = require('css-to-go-workspace-linux-x64-musl')
+              nativeBinding = require('autocompletion-engine-linux-x64-musl')
             }
           } catch (e) {
             loadError = e
@@ -187,7 +187,7 @@ switch (platform) {
             if (localFileExisted) {
               nativeBinding = require('./autocompletion-engine.linux-x64-gnu.node')
             } else {
-              nativeBinding = require('css-to-go-workspace-linux-x64-gnu')
+              nativeBinding = require('autocompletion-engine-linux-x64-gnu')
             }
           } catch (e) {
             loadError = e
@@ -203,7 +203,7 @@ switch (platform) {
             if (localFileExisted) {
               nativeBinding = require('./autocompletion-engine.linux-arm64-musl.node')
             } else {
-              nativeBinding = require('css-to-go-workspace-linux-arm64-musl')
+              nativeBinding = require('autocompletion-engine-linux-arm64-musl')
             }
           } catch (e) {
             loadError = e
@@ -216,7 +216,7 @@ switch (platform) {
             if (localFileExisted) {
               nativeBinding = require('./autocompletion-engine.linux-arm64-gnu.node')
             } else {
-              nativeBinding = require('css-to-go-workspace-linux-arm64-gnu')
+              nativeBinding = require('autocompletion-engine-linux-arm64-gnu')
             }
           } catch (e) {
             loadError = e
@@ -231,7 +231,7 @@ switch (platform) {
           if (localFileExisted) {
             nativeBinding = require('./autocompletion-engine.linux-arm-gnueabihf.node')
           } else {
-            nativeBinding = require('css-to-go-workspace-linux-arm-gnueabihf')
+            nativeBinding = require('autocompletion-engine-linux-arm-gnueabihf')
           }
         } catch (e) {
           loadError = e

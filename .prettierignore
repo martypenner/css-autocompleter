@@ -1,2 +1,3 @@
-.yarn/
-__test__/**/*.css
+autocompletion-engine/__test__/**/*.css
+autocompletion-engine/*.js
+autocompletion-engine/*.ts

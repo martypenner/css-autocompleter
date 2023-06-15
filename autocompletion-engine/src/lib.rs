@@ -53,7 +53,7 @@ impl AutocompletionEngine {
   // creating the final completions list, but makes it harder to invalidate the cache
   // for a single file. Need to rethink this.
   fn get_all_completions_for_files(&mut self, files: Vec<String>) -> &Completions {
-    if self.completions.len() > 0 {
+    if !self.completions.is_empty() {
       return &self.completions;
     }
 
@@ -98,16 +98,11 @@ impl AutocompletionEngine {
 
         // Walk upwards, finding the parent rule set.
         let mut parent = class_selector.parent();
-        loop {
-          match parent {
-            Some(found_parent) => {
-              if found_parent.kind() == "rule_set" {
-                break;
-              } else {
-                parent = found_parent.parent();
-              }
-            }
-            None => break,
+        while let Some(found_parent) = parent {
+          if found_parent.kind() == "rule_set" {
+            break;
+          } else {
+            parent = found_parent.parent();
           }
         }
 
@@ -119,7 +114,6 @@ impl AutocompletionEngine {
               class_selector
                 .utf8_text(code)
                 .expect("Could not convert node to utf8 text")
-                .to_string()
             );
             continue;
           }
@@ -188,8 +182,14 @@ impl AutocompletionEngine {
   }
 }
 
+impl Default for AutocompletionEngine {
+  fn default() -> Self {
+    Self::new()
+  }
+}
+
 fn get_class_selectors_query_for_tree() -> Query {
-  let query = Query::new(
+  Query::new(
     tree_sitter_css::language(),
     r#"
       (class_selector
@@ -197,9 +197,7 @@ fn get_class_selectors_query_for_tree() -> Query {
       ) @class_selector
     "#,
   )
-  .expect("Could not create tree sitter query");
-
-  query
+  .expect("Could not create tree sitter query")
 }
 
 #[cfg(test)]
