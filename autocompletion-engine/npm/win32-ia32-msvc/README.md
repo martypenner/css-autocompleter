@@ -1,3 +1,3 @@
-# `autocompletion-engine-win32-ia32-msvc`
+# `@css-to-go/autocompletion-engine-win32-ia32-msvc`
 
-This is the **i686-pc-windows-msvc** binary for `autocompletion-engine`
+This is the **i686-pc-windows-msvc** binary for `@css-to-go/autocompletion-engine`

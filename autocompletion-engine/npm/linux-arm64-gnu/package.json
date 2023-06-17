@@ -1,5 +1,5 @@
 {
-  "name": "autocompletion-engine-linux-arm64-gnu",
+  "name": "@css-to-go/autocompletion-engine-linux-arm64-gnu",
   "version": "0.0.0",
   "os": [
     "linux"

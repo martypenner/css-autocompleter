@@ -48,8 +48,6 @@
           cargo-watch
           rust-analyzer
 
-          vsce
-
           # nodejs 18
           nodejs
           yarn

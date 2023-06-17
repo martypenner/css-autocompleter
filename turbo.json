@@ -2,17 +2,26 @@
   "$schema": "https://turbo.build/schema.json",
   "pipeline": {
     "build": {
-      "outputs": ["dist/**", "out/**", "target/**"],
+      "outputs": ["dist/**", "target/**", "index.js", "index.d.ts", "*.node"],
       "dependsOn": ["^build"]
+    },
+    "build:minify": {
+      "outputs": ["dist/**", "target/**", "index.js", "index.d.ts", "*.node"],
+      "dependsOn": ["^build"]
+    },
+    "build:tests": {
+      "outputs": ["out/**"],
+      "dependsOn": ["^build:tests"]
     },
     "test": {
       "inputs": ["src/**", "test/**", "tests/**", "__test__/**", "**/*.test.js", "**/*.spec.*"],
-      "outputs": ["coverage/**"],
-      "dependsOn": ["build"]
+      "outputs": ["coverage/**", "out/**"],
+      "dependsOn": ["build", "build:tests"]
     },
     "test:watch": {
-      "outputs": ["coverage/**"],
-      "dependsOn": ["build"]
+      "inputs": ["src/**", "test/**", "tests/**", "__test__/**", "**/*.test.js", "**/*.spec.*"],
+      "outputs": ["coverage/**", "out/**"],
+      "dependsOn": ["build", "build:tests"]
     },
     "lint": {},
     "dev": {
@@ -22,6 +31,14 @@
     },
     "clean": {
       "cache": false
+    },
+    "package": {
+      "outputs": ["**/*.vsix"],
+      "dependsOn": ["build:minify"]
+    },
+    "publish": {
+      "inputs": ["**/*.vsix", "package.json"],
+      "dependsOn": ["test", "package"]
     }
   }
 }

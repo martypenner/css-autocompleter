@@ -1,29 +1,53 @@
 {
-  "name": "css-to-go",
-  "displayName": "css-to-go",
-  "description": "",
-  "version": "0.0.1",
-  "engines": {
-    "vscode": "^1.77.0"
+  "name": "vscode-css-autocomplete",
+  "version": "0.0.2",
+  "displayName": "CSS to Go",
+  "description": "CSS autocompletion for VS Code",
+  "author": "Marty Penner <css-to-go@penner.me>",
+  "homepage": "https://github.com/martypenner/css-to-go.git",
+  "bugs": {
+    "url": "https://github.com/martypenner/css-to-go.git",
+    "email": "css-to-go-bugs@penner.me"
   },
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/martypenner/css-to-go.git"
+  },
+  "publisher": "martypenner",
+  "keywords": [
+    "css",
+    "intellisense",
+    "autocomplete",
+    "vscode"
+  ],
   "categories": [
     "Other"
   ],
+  "engines": {
+    "vscode": "^1.77.0"
+  },
   "activationEvents": [
     "onStartupFinished"
   ],
-  "main": "./out/extension.js",
+  "main": "./main.js",
+  "files": [
+    "*.md",
+    "LICENSE",
+    "package.json",
+    "main.js",
+    "autocompletion-engine/"
+  ],
   "contributes": {
     "commands": [
       {
-        "command": "css-to-go.addCssToAutocomplete",
+        "command": "css-to-go.addCssFileToAutocomplete",
         "title": "Add CSS file to Autocomplete"
       }
     ],
     "menus": {
       "explorer/context": [
         {
-          "command": "css-to-go.addCssToAutocomplete",
+          "command": "css-to-go.addCssFileToAutocomplete",
           "when": "resourceExtname == .css",
           "group": "2_workspace"
         }
@@ -77,15 +101,20 @@
     }
   },
   "scripts": {
-    "dev": "tsc -watch -p ./",
-    "build": "tsc -p ./",
+    "dev": "npm run _esbuild -- --sourcemap --watch",
+    "build": "npm run _esbuild -- --sourcemap",
+    "build:minify": "npm run _esbuild -- --minify",
+    "build:tests": "tsc -p ./",
     "lint": "eslint src --ext ts",
     "test": "node ./out/test/runTest.js",
-    "vscode:prepublish": "npm run compile",
-    "package": "echo 'TODO: package using vsce'",
-    "clean": "rm -rf dist out autocompletion-engine"
+    "clean": "rm -rf dist out",
+    "package": "npm run move:artifacts && cd dist && sed -i 's|@css-to-go/autocompletion-engine|./autocompletion-engine|g' main.js && npx vsce package",
+    "move:artifacts": "(mkdir -p dist/autocompletion-engine >/dev/null 2>&1 || true) && cp -rfv package.json LICENSE *.md dist && fdfind --hidden --no-ignore --type f '(.node|index.js)' ../node_modules/@css-to-go/autocompletion-engine --exec cp -fv {} dist/autocompletion-engine/",
+    "publish": "cd dist; if [ -z $IS_PRERELEASE ]; then npx vsce publish; else npx vsce publish --pre-release; fi",
+    "_esbuild": "node ./esbuild.js src/extension.ts --outfile=dist/main.js --external=vscode --external=@css-to-go/autocompletion-engine"
   },
   "devDependencies": {
+    "@css-to-go/autocompletion-engine": "*",
     "@types/glob": "^8.1.0",
     "@types/mocha": "^10.0.1",
     "@types/node": "16.x",
@@ -93,14 +122,18 @@
     "@typescript-eslint/eslint-plugin": "^5.56.0",
     "@typescript-eslint/parser": "^5.56.0",
     "@vscode/test-electron": "^2.3.0",
-    "autocompletion-engine": "*",
+    "@vscode/vsce": "^2.19.0",
+    "esbuild": "^0.18.4",
     "eslint": "^8.36.0",
     "glob": "^8.1.0",
     "mocha": "^10.2.0",
+    "mri": "^1.2.0",
     "prettier": "^2.8.8",
-    "typescript": "^4.9.5"
+    "typescript": "^4.9.5",
+    "vsce": "^2.15.0"
   },
-  "dependencies": {
-    "esbuild": "^0.17.18"
+  "vsce": {
+    "dependencies": false,
+    "yarn": false
   }
 }

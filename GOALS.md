@@ -3,5 +3,5 @@
   - no deallocing of heap entries just created (common in js loops)
 - supa fast
 - maintained ;)
-- won't destroy your computer
 - simple
+- local only! no fetching of remote resources or trying to be clever with link style tags

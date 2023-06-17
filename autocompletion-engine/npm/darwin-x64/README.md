@@ -1,3 +1,3 @@
-# `autocompletion-engine-darwin-x64`
+# `@css-to-go/autocompletion-engine-darwin-x64`
 
-This is the **x86_64-apple-darwin** binary for `autocompletion-engine`
+This is the **x86_64-apple-darwin** binary for `@css-to-go/autocompletion-engine`

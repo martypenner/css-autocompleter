@@ -1,0 +1,328 @@
+name: Release
+
+on:
+  push:
+    branches: [main]
+  workflow_dispatch: {}
+
+permissions:
+  contents: read
+
+env:
+  APP_NAME: css-to-go
+  DISPLAY: ':99.0'
+  NODE_VERSION: 18
+  AUTOCOMPLETION_ENGINE_LOCATION: ./autocompletion-engine
+
+concurrency: ${{ github.workflow }}-${{ github.ref }}
+
+jobs:
+  build:
+    strategy:
+      fail-fast: false
+      matrix:
+        include:
+          # Windows
+          - os: windows-latest
+            target: x86_64-pc-windows-msvc
+          # Mac OS
+          - os: macos-latest
+            target: x86_64-apple-darwin
+            strip: strip -x # Must use -x on macOS. This produces larger results on linux.
+
+    name: Build ${{ matrix.target }}
+    runs-on: ${{ matrix.os }}
+    steps:
+      - uses: actions/checkout@v3
+
+      - name: Cache node_modules
+        uses: actions/cache@v3
+        with:
+          path: node_modules
+          key: ${{ runner.os }}-${{ matrix.target }}-${{ env.NODE_VERSION }}-node_modules-${{ hashFiles('**/package-lock.json') }}
+
+      - name: Cache cargo
+        uses: actions/cache@v3
+        with:
+          path: |
+            ~/.cargo/bin/
+            ~/.cargo/registry/index/
+            ~/.cargo/registry/cache/
+            ~/.cargo/git/db/
+            target/
+          key: ${{ runner.os }}-${{ matrix.target }}-cargo-${{ hashFiles('**/Cargo.lock') }}
+
+      - name: Cache build
+        uses: actions/cache@v3
+        with:
+          path: |
+            ${{ env.AUTOCOMPLETION_ENGINE_LOCATION }}/target/
+            ${{ env.AUTOCOMPLETION_ENGINE_LOCATION }}/*.node
+            ${{ env.AUTOCOMPLETION_ENGINE_LOCATION }}/index.js
+            ${{ env.AUTOCOMPLETION_ENGINE_LOCATION }}/index.d.ts
+          key: ${{ runner.os }}-${{ matrix.target }}-autocompletion-engine-${{ hashFiles('./autocompletion-engine/**/*') }}
+
+      - name: Install Node.JS
+        uses: actions/setup-node@v3
+        with:
+          node-version: ${{ env.NODE_VERSION }}
+
+      - name: Install Rust
+        uses: actions-rs/toolchain@v1
+        with:
+          toolchain: stable
+          profile: minimal
+          override: true
+
+      - name: Setup rust target
+        run: rustup target add ${{ matrix.target }}
+
+      - name: Install dependencies
+        run: npm install
+
+      - name: Build release
+        run: npm run build
+        env:
+          RUST_TARGET: ${{ matrix.target }}
+
+      - name: Strip debug symbols # https://github.com/rust-lang/rust/issues/46034
+        if: ${{ matrix.strip }}
+        run: ${{ matrix.strip }} ${{ env.AUTOCOMPLETION_ENGINE_LOCATION }}/*.node
+
+      - name: Upload artifacts
+        uses: actions/upload-artifact@v3
+        with:
+          name: bindings-${{ matrix.target }}
+          path: |
+            ${{ env.AUTOCOMPLETION_ENGINE_LOCATION }}/*.node
+            ${{ matrix.binary }}
+
+  build-apple-silicon:
+    name: Build Apple Silicon
+    runs-on: macos-latest
+    steps:
+      - uses: actions/checkout@v3
+
+      - name: Cache node_modules
+        uses: actions/cache@v3
+        with:
+          path: node_modules
+          key: ${{ runner.os }}-${{ env.NODE_VERSION }}-node_modules-${{ hashFiles('**/package-lock.json') }}
+
+      - name: Cache cargo
+        uses: actions/cache@v3
+        with:
+          path: |
+            ~/.cargo/bin/
+            ~/.cargo/registry/index/
+            ~/.cargo/registry/cache/
+            ~/.cargo/git/db/
+            target/
+          key: ${{ runner.os }}-cargo-${{ hashFiles('**/Cargo.lock') }}
+
+      - name: Cache build
+        uses: actions/cache@v3
+        with:
+          path: |
+            ${{ env.AUTOCOMPLETION_ENGINE_LOCATION }}/target/
+            ${{ env.AUTOCOMPLETION_ENGINE_LOCATION }}/*.node
+            ${{ env.AUTOCOMPLETION_ENGINE_LOCATION }}/index.js
+            ${{ env.AUTOCOMPLETION_ENGINE_LOCATION }}/index.d.ts
+          key: ${{ runner.os }}-autocompletion-engine-${{ hashFiles('./autocompletion-engine/**/*') }}
+
+      - name: Install Node.JS
+        uses: actions/setup-node@v3
+        with:
+          node-version: ${{ env.NODE_VERSION }}
+
+      - name: Install Rust
+        uses: actions-rs/toolchain@v1
+        with:
+          toolchain: stable
+          profile: minimal
+          override: true
+
+      - name: Setup rust target
+        run: rustup target add aarch64-apple-darwin
+
+      - name: Install dependencies
+        run: npm install
+
+      - name: Build release
+        run: npm run build
+        env:
+          RUST_TARGET: aarch64-apple-darwin
+          JEMALLOC_SYS_WITH_LG_PAGE: 14
+
+      - name: Strip debug symbols # https://github.com/rust-lang/rust/issues/46034
+        run: strip -x ${{ env.AUTOCOMPLETION_ENGINE_LOCATION }}/*.node
+
+      - name: Upload artifacts
+        uses: actions/upload-artifact@v3
+        with:
+          name: bindings-aarch64-apple-darwin
+          path: |
+            ${{ env.AUTOCOMPLETION_ENGINE_LOCATION }}/*.node
+            ${{ env.APP_NAME }}
+
+  build-linux:
+    strategy:
+      fail-fast: false
+      matrix:
+        include:
+          - target: x86_64-unknown-linux-gnu
+            strip: strip
+            image: ghcr.io/napi-rs/napi-rs/nodejs-rust:lts-debian
+          - target: aarch64-unknown-linux-gnu
+            strip: llvm-strip
+            image: ghcr.io/napi-rs/napi-rs/nodejs-rust:lts-debian-aarch64
+          - target: armv7-unknown-linux-gnueabihf
+            strip: llvm-strip
+            image: ghcr.io/napi-rs/napi-rs/nodejs-rust:lts-debian-zig
+          - target: aarch64-unknown-linux-musl
+            image: ghcr.io/napi-rs/napi-rs/nodejs-rust:lts-alpine
+            strip: aarch64-linux-musl-strip
+          - target: x86_64-unknown-linux-musl
+            image: ghcr.io/napi-rs/napi-rs/nodejs-rust:lts-alpine
+            strip: strip
+
+    name: Build ${{ matrix.target }}
+    runs-on: ubuntu-latest
+    container:
+      image: ${{ matrix.image }}
+
+    steps:
+      - uses: actions/checkout@v3
+
+      - name: Cache node_modules
+        uses: actions/cache@v3
+        with:
+          path: node_modules
+          key: ${{ runner.os }}-${{ matrix.target }}-${{ env.NODE_VERSION }}-node_modules-${{ hashFiles('**/package-lock.json') }}
+
+      - name: Cache cargo
+        uses: actions/cache@v3
+        with:
+          path: |
+            ~/.cargo/bin/
+            ~/.cargo/registry/index/
+            ~/.cargo/registry/cache/
+            ~/.cargo/git/db/
+            target/
+          key: ${{ runner.os }}-${{ matrix.target }}-cargo-${{ hashFiles('**/Cargo.lock') }}
+
+      - name: Cache build
+        uses: actions/cache@v3
+        with:
+          path: |
+            ${{ env.AUTOCOMPLETION_ENGINE_LOCATION }}/target/
+            ${{ env.AUTOCOMPLETION_ENGINE_LOCATION }}/*.node
+            ${{ env.AUTOCOMPLETION_ENGINE_LOCATION }}/index.js
+            ${{ env.AUTOCOMPLETION_ENGINE_LOCATION }}/index.d.ts
+          key: ${{ runner.os }}-${{ matrix.target }}-autocompletion-engine-${{ hashFiles('./autocompletion-engine/**/*') }}
+
+      - name: Install Node.JS
+        uses: actions/setup-node@v3
+        with:
+          node-version: ${{ env.NODE_VERSION }}
+
+      - name: Install Rust
+        uses: actions-rs/toolchain@v1
+        with:
+          toolchain: stable
+          profile: minimal
+          override: true
+
+      - name: Setup cross compile toolchain
+        if: ${{ matrix.setup }}
+        run: ${{ matrix.setup }}
+
+      - name: Setup rust target
+        run: rustup target add ${{ matrix.target }}
+
+      - name: Install dependencies
+        run: npm install
+
+      - name: Build release
+        run: npm run build
+        env:
+          RUST_TARGET: ${{ matrix.target }}
+
+      - name: Strip debug symbols # https://github.com/rust-lang/rust/issues/46034
+        if: ${{ matrix.strip }}
+        run: ${{ matrix.strip }} ${{ env.AUTOCOMPLETION_ENGINE_LOCATION }}/*.node
+
+      - name: Upload artifacts
+        uses: actions/upload-artifact@v3
+        with:
+          name: bindings-${{ matrix.target }}
+          path: |
+            ${{ env.AUTOCOMPLETION_ENGINE_LOCATION }}/*.node
+            ${{ env.APP_NAME }}
+
+  release:
+    runs-on: ubuntu-latest
+    name: Build and release
+    needs:
+      - build
+      - build-linux
+      - build-apple-silicon
+    steps:
+      - uses: actions/checkout@v3
+
+      - name: Cache node_modules
+        uses: actions/cache@v3
+        with:
+          path: node_modules
+          key: ${{ runner.os }}-${{ env.NODE_VERSION }}-node_modules-${{ hashFiles('**/package-lock.json') }}
+
+      - name: Cache cargo
+        uses: actions/cache@v3
+        with:
+          path: |
+            ~/.cargo/bin/
+            ~/.cargo/registry/index/
+            ~/.cargo/registry/cache/
+            ~/.cargo/git/db/
+            target/
+          key: ${{ runner.os }}-cargo-${{ hashFiles('**/Cargo.lock') }}
+
+      - name: Cache build
+        uses: actions/cache@v3
+        with:
+          path: |
+            ${{ env.AUTOCOMPLETION_ENGINE_LOCATION }}/target/
+            ${{ env.AUTOCOMPLETION_ENGINE_LOCATION }}/*.node
+            ${{ env.AUTOCOMPLETION_ENGINE_LOCATION }}/index.js
+            ${{ env.AUTOCOMPLETION_ENGINE_LOCATION }}/index.d.ts
+          key: ${{ runner.os }}-autocompletion-engine-${{ hashFiles('./autocompletion-engine/**/*') }}
+
+      - name: Install dependencies
+        run: |
+          sudo apt install fd-find
+          npm install
+
+      - name: Download artifacts
+        uses: actions/download-artifact@v3
+        with:
+          path: ${{ env.AUTOCOMPLETION_ENGINE_LOCATION }}
+
+      - name: Setup Xvfb for VSCode integration test
+        run: |
+          /usr/bin/Xvfb :99 -screen 0 1024x768x24 > /dev/null 2>&1 &
+          echo ">>> Started xvfb"
+
+      - name: Package with vsce
+        run: npm run package
+
+      - name: Create release pull request or publish
+        id: changesets
+        uses: changesets/action@v1
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Publish
+        if: steps.changesets.outputs.hasChangesets == 'false'
+        run: npm run publish
+        env:
+          VSCE_PAT: ${{ secrets.VSCE_PAT }}

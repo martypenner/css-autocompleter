@@ -1,11 +1,13 @@
 {
-  "name": "css-to-go-workspace",
+  "name": "@css-to-go/workspace",
   "private": true,
   "version": "0.0.0",
   "license": "MIT",
   "scripts": {
     "dev": "concurrently -n vscode,autocompletion-engine -c green,yellow 'npm run dev:js' 'npm run dev:rust'",
     "build": "turbo run build",
+    "build:minify": "turbo run build:minify",
+    "build:tests": "turbo run build:tests",
     "test": "turbo run test",
     "test:watch": "turbo run test:watch",
     "lint": "turbo run lint",
@@ -13,12 +15,24 @@
     "dev:js": "npm run --prefix ./vscode-extension dev",
     "fmt": "prettier --write . --ignore-path .gitignore '!autocompletion-engine/__test__/**/*.css' '!autocompletion-engine/*.js' '!autocompletion-engine/*.ts' && nix fmt && (cd autocompletion-engine && cargo fmt)",
     "clean": "turbo run clean",
-    "prepublishOnly": "npm install --force && npm run build"
+    "changeset": "npx changeset",
+    "version": "npx changeset version",
+    "package": "turbo run package",
+    "publish": "turbo run publish"
   },
   "devDependencies": {
+    "@svitejs/changesets-changelog-github-compact": "^1.1.0",
     "concurrently": "^8.2.0",
     "prettier": "^2.8.8",
     "turbo": "^1.10.3"
+  },
+  "optionalDependencies": {
+    "turbo-darwin-64": "1.10.3",
+    "turbo-darwin-arm64": "1.10.3",
+    "turbo-linux-64": "1.10.3",
+    "turbo-linux-arm64": "1.10.3",
+    "turbo-windows-64": "1.10.3",
+    "turbo-windows-arm64": "1.10.3"
   },
   "workspaces": [
     "autocompletion-engine",

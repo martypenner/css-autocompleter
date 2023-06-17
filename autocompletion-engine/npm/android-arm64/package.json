@@ -1,5 +1,5 @@
 {
-  "name": "autocompletion-engine-android-arm64",
+  "name": "@css-to-go/autocompletion-engine-android-arm64",
   "version": "0.0.0",
   "os": [
     "android"

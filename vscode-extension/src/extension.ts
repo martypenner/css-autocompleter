@@ -1,6 +1,6 @@
 import * as vscode from 'vscode';
 import * as path from 'node:path';
-import { AutocompletionEngine } from 'autocompletion-engine';
+import { AutocompletionEngine } from '@css-to-go/autocompletion-engine';
 
 const EXTENSION_NAME = 'css-to-go';
 const FILES_LIST_KEY = 'filesList';
@@ -22,7 +22,7 @@ export function activate(context: vscode.ExtensionContext) {
   const languages = getLanguagesFromConfig(config);
 
   context.subscriptions.push(
-    vscode.commands.registerCommand(`${EXTENSION_NAME}.addCssToAutocomplete`, async (file) => {
+    vscode.commands.registerCommand(`${EXTENSION_NAME}.addCssFileToAutocomplete`, async (file) => {
       const newList = Array.from(new Set(getFilesToParseFromConfig(config).concat(file.path)));
 
       config()

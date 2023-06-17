@@ -1,5 +1,6 @@
 {
-  "name": "autocompletion-engine",
+  "name": "@css-to-go/autocompletion-engine",
+  "private": true,
   "version": "0.0.0",
   "main": "index.js",
   "types": "index.d.ts",
@@ -46,5 +47,16 @@
     "prepublishOnly": "napi prepublish -t npm",
     "version": "napi version",
     "clean": "cargo clean && rm -rf *.node"
+  },
+  "optionalDependencies": {
+    "@css-to-go/autocompletion-engine-darwin-arm64": "0.0.0",
+    "@css-to-go/autocompletion-engine-darwin-x64": "0.0.0",
+    "@css-to-go/autocompletion-engine-freebsd-x64": "0.0.0",
+    "@css-to-go/autocompletion-engine-linux-arm-gnueabihf": "0.0.0",
+    "@css-to-go/autocompletion-engine-linux-arm64-gnu": "0.0.0",
+    "@css-to-go/autocompletion-engine-linux-arm64-musl": "0.0.0",
+    "@css-to-go/autocompletion-engine-linux-x64-gnu": "0.0.0",
+    "@css-to-go/autocompletion-engine-linux-x64-musl": "0.0.0",
+    "@css-to-go/autocompletion-engine-win32-x64-msvc": "0.0.0"
   }
 }

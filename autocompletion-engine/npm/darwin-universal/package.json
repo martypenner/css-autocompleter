@@ -1,5 +1,5 @@
 {
-  "name": "autocompletion-engine-darwin-universal",
+  "name": "@css-to-go/autocompletion-engine-darwin-universal",
   "version": "0.0.0",
   "os": [
     "darwin"

@@ -1,5 +1,5 @@
 {
-  "name": "autocompletion-engine-linux-arm-gnueabihf",
+  "name": "@css-to-go/autocompletion-engine-linux-arm-gnueabihf",
   "version": "0.0.0",
   "os": [
     "linux"
