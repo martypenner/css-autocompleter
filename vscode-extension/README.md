@@ -2,7 +2,7 @@
 
 Autocomplete CSS class names based on CSS files in your workspace.
 
-\!\[autocomplete\]\(media/2023-07-04.png\)
+![autocomplete](media/2023-07-04.png)
 
 ## Extension Settings
 
