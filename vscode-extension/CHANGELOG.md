@@ -1,10 +1,10 @@
 # Change Log
 
-## Notes
+## 0.0.6
 
-All notable changes to the "css-to-go" extension will be documented in this file.
+### Patch Changes
 
-Check [Keep a Changelog](http://keepachangelog.com/) for recommendations on how to structure this file.
+- Docs: try fixing media path again ([`b90f9b8`](https://github.com/martypenner/css-to-go/commit/b90f9b81260a257830195639d0486b5ed477cefe))
 
 ## 0.0.5
 
@@ -37,3 +37,9 @@ Check [Keep a Changelog](http://keepachangelog.com/) for recommendations on how 
 ### Patch Changes
 
 - Initial release
+
+## Notes
+
+All notable changes to the "css-to-go" extension will be documented in this file.
+
+Check [Keep a Changelog](http://keepachangelog.com/) for recommendations on how to structure this file.
