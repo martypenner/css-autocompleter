@@ -117,9 +117,9 @@
     "lint": "eslint src --ext ts",
     "test": "node ./out/test/runTest.js",
     "clean": "rm -rf dist out",
-    "package": "npm run move:artifacts && cd dist && sed -i 's|@css-to-go/autocompletion-engine|./autocompletion-engine|g' main.js && npx vsce package",
+    "package": "npm run move:artifacts && cd dist && sed -i 's|@css-to-go/autocompletion-engine|./autocompletion-engine|g' main.js && npx vsce package --baseContentUrl='https://github.com/martypenner/css-to-go/raw/HEAD/vscode-extension' --baseImageUrl='https://github.com/martypenner/css-to-go/raw/HEAD/vscode-extension'",
     "move:artifacts": "(mkdir -p dist/autocompletion-engine >/dev/null 2>&1 || true) && cp -rfv package.json LICENSE *.md media dist && fdfind --hidden --no-ignore --type f '(.node|index.js)' ../node_modules/@css-to-go/autocompletion-engine --exec cp -fv {} dist/autocompletion-engine/",
-    "publish": "cd dist; if [ -z $IS_PRERELEASE ]; then npx vsce publish; else npx vsce publish --pre-release; fi",
+    "publish": "cd dist; if [ -z $IS_PRERELEASE ]; then npx vsce publish --baseContentUrl='https://github.com/martypenner/css-to-go/raw/HEAD/vscode-extension' --baseImageUrl='https://github.com/martypenner/css-to-go/raw/HEAD/vscode-extension'; else npx vsce publish --pre-release --baseContentUrl='https://github.com/martypenner/css-to-go/raw/HEAD/vscode-extension' --baseImageUrl='https://github.com/martypenner/css-to-go/raw/HEAD/vscode-extension'; fi",
     "_esbuild": "node ./esbuild.js src/extension.ts --outfile=dist/main.js --external=vscode --external=@css-to-go/autocompletion-engine"
   },
   "devDependencies": {
