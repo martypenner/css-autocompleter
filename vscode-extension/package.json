@@ -42,12 +42,21 @@
       {
         "command": "css-to-go.addCssFileToAutocomplete",
         "title": "Add CSS file to Autocomplete"
+      },
+      {
+        "command": "css-to-go.removeCssFileFromAutocomplete",
+        "title": "Remove CSS file from Autocomplete"
       }
     ],
     "menus": {
       "explorer/context": [
         {
           "command": "css-to-go.addCssFileToAutocomplete",
+          "when": "resourceExtname == .css",
+          "group": "2_workspace"
+        },
+        {
+          "command": "css-to-go.removeCssFileFromAutocomplete",
           "when": "resourceExtname == .css",
           "group": "2_workspace"
         }

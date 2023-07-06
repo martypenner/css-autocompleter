@@ -40,6 +40,31 @@ export function activate(context: vscode.ExtensionContext) {
         );
     })
   );
+  context.subscriptions.push(
+    vscode.commands.registerCommand(
+      `${EXTENSION_NAME}.removeCssFileFromAutocomplete`,
+      async (file) => {
+        const newList = Array.from(
+          new Set(getFilesToParseFromConfig(config).filter((path) => path !== file.path))
+        );
+        console.log(newList);
+
+        config()
+          .update(`${EXTENSION_NAME}.${FILES_LIST_KEY}`, newList, true)
+          .then(
+            () => {},
+            (error) => {
+              vscode.window.showErrorMessage(
+                `We couldn't update your configuration for some reason. Please see the debug logs for more info.`
+              );
+              console.error(
+                `We couldn't update your configuration for the following reason: ${error}`
+              );
+            }
+          );
+      }
+    )
+  );
 
   context.subscriptions.push(
     vscode.workspace.onDidChangeWorkspaceFolders(() => {
