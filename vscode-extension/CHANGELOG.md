@@ -1,5 +1,11 @@
 # Change Log
 
+## Notes
+
+All notable changes to the "css-to-go" extension will be documented in this file.
+
+Check [Keep a Changelog](http://keepachangelog.com/) for recommendations on how to structure this file.
+
 ## 0.0.5
 
 ### Patch Changes
@@ -13,10 +19,6 @@
 ### Patch Changes
 
 - Docs: correct broken image ([`f64aaff`](https://github.com/martypenner/css-to-go/commit/f64aaffc9d6e2640902dc3122ec21d5ab77874c3))
-
-All notable changes to the "css-to-go" extension will be documented in this file.
-
-Check [Keep a Changelog](http://keepachangelog.com/) for recommendations on how to structure this file.
 
 ## 0.0.3
 
