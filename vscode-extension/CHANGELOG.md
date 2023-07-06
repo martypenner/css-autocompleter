@@ -1,5 +1,13 @@
 # Change Log
 
+## 0.0.5
+
+### Patch Changes
+
+- Docs: fix incorrect image path ([`6fc2e1b`](https://github.com/martypenner/css-to-go/commit/6fc2e1bd55b7eb47c7c7028183b0d7a43a93e3f4))
+
+- Feat: allow removing files from the autocomplete list ([`212d087`](https://github.com/martypenner/css-to-go/commit/212d087c20443818cd9819f61f86df1a1878b658))
+
 ## 0.0.4
 
 ### Patch Changes
