@@ -1,5 +1,11 @@
 # Change Log
 
+## 0.0.7
+
+### Patch Changes
+
+- Fix: ensure config values get updated correctly ([`23a7446`](https://github.com/martypenner/css-to-go/commit/23a744693e4ea4292d5e99ab13a84110f050f014))
+
 ## 0.0.6
 
 ### Patch Changes
