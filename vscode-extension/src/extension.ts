@@ -1,6 +1,6 @@
-import * as vscode from 'vscode';
-import * as path from 'node:path';
 import { AutocompletionEngine } from '@css-to-go/autocompletion-engine';
+import * as path from 'node:path';
+import * as vscode from 'vscode';
 
 const EXTENSION_NAME = 'css-to-go';
 const FILES_LIST_KEY = 'filesList';
@@ -24,9 +24,10 @@ export function activate(context: vscode.ExtensionContext) {
   context.subscriptions.push(
     vscode.commands.registerCommand(`${EXTENSION_NAME}.addCssFileToAutocomplete`, async (file) => {
       const newList = Array.from(new Set(getFilesToParseFromConfig(config).concat(file.path)));
+      console.log(newList);
 
-      config()
-        .update(`${EXTENSION_NAME}.${FILES_LIST_KEY}`, newList, true)
+      config(EXTENSION_NAME)
+        .update(FILES_LIST_KEY, newList, vscode.ConfigurationTarget.Global)
         .then(
           () => {},
           (error) => {
@@ -49,8 +50,8 @@ export function activate(context: vscode.ExtensionContext) {
         );
         console.log(newList);
 
-        config()
-          .update(`${EXTENSION_NAME}.${FILES_LIST_KEY}`, newList, true)
+        config(EXTENSION_NAME)
+          .update(FILES_LIST_KEY, newList, vscode.ConfigurationTarget.Global)
           .then(
             () => {},
             (error) => {
@@ -75,7 +76,7 @@ export function activate(context: vscode.ExtensionContext) {
 
   context.subscriptions.push(
     vscode.workspace.onDidChangeConfiguration((event) => {
-      if (!event.affectsConfiguration(`${EXTENSION_NAME}`)) {
+      if (!event.affectsConfiguration(EXTENSION_NAME)) {
         return;
       }
 
@@ -159,7 +160,7 @@ export function deactivate() {
 }
 
 function getLanguagesFromConfig(config: typeof vscode.workspace.getConfiguration) {
-  let htmlLanguages = config().get(`${EXTENSION_NAME}.${HTML_LANGUAGES_KEY}`, []);
+  let htmlLanguages = config(EXTENSION_NAME).get(HTML_LANGUAGES_KEY, []);
   if (!Array.isArray(htmlLanguages)) {
     vscode.window.showErrorMessage(
       `Found an invalid config value for ${HTML_LANGUAGES_KEY}. Expected an array of strings. Falling back to [].`
@@ -221,7 +222,8 @@ function getFilesToWatchAndParseFromConfig(
 }
 
 function getFilesToParseFromConfig(config: typeof vscode.workspace.getConfiguration): string[] {
-  let files: string[] = (config().get(`${EXTENSION_NAME}.${FILES_LIST_KEY}`) ?? []) as string[];
+  config().get(`${EXTENSION_NAME}.${FILES_LIST_KEY}`);
+  let files: string[] = (config(EXTENSION_NAME).get(FILES_LIST_KEY) ?? []) as string[];
   if (!Array.isArray(files)) {
     vscode.window.showErrorMessage(
       `Found an invalid config value for ${FILES_LIST_KEY}. Expected an array of strings. Falling back to [].`

@@ -14,7 +14,7 @@ This extension contributes the following settings:
 
 ## Known Issues
 
-Adding a CSS file to the autocomplete list doesn't always persist the setting. Probably something to do with workspace vs. global settings.
+None so far.
 
 ## Release Notes
 
