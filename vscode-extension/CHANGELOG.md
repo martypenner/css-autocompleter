@@ -1,5 +1,11 @@
 # Change Log
 
+## 0.0.8
+
+### Patch Changes
+
+- Fix: use an esbuild plugin instead of sed to more reliably rewrite the engine import path ([`cf2fcc9`](https://github.com/martypenner/css-to-go/commit/cf2fcc952a3c5e21e40ea12b33dbaa3a652da5c0))
+
 ## 0.0.7
 
 ### Patch Changes
