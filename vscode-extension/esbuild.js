@@ -20,6 +20,15 @@ esbuild.build({
   target: 'es2020',
   plugins: [
     {
+      name: 'transform-external-import-path-to-local',
+      setup(build) {
+        build.onResolve({ filter: /^@css-to-go\/autocompletion-engine$/ }, () => ({
+          path: './autocompletion-engine',
+          external: true,
+        }));
+      },
+    },
+    {
       name: 'css',
       setup(build) {
         build.onResolve({ filter: /\.css$/, namespace: 'file' }, (args) => ({
