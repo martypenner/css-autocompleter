@@ -13,7 +13,7 @@ env:
   APP_NAME: css-to-go
   DISPLAY: ':99.0'
   NODE_VERSION: 18
-  AUTOCOMPLETION_ENGINE_LOCATION: ./autocompletion-engine
+  AUTOCOMPLETION_ENGINE_LOCATION: ./autocompletion-engine/crates/node
 
 concurrency: ${{ github.workflow }}-${{ github.ref }}
 
@@ -57,7 +57,7 @@ jobs:
         uses: actions/cache@v3
         with:
           path: |
-            ${{ env.AUTOCOMPLETION_ENGINE_LOCATION }}/target/
+            ./autocompletion-engine/target/
             ${{ env.AUTOCOMPLETION_ENGINE_LOCATION }}/*.node
             ${{ env.AUTOCOMPLETION_ENGINE_LOCATION }}/index.js
             ${{ env.AUTOCOMPLETION_ENGINE_LOCATION }}/index.d.ts
@@ -125,7 +125,7 @@ jobs:
         uses: actions/cache@v3
         with:
           path: |
-            ${{ env.AUTOCOMPLETION_ENGINE_LOCATION }}/target/
+            ./autocompletion-engine/target/
             ${{ env.AUTOCOMPLETION_ENGINE_LOCATION }}/*.node
             ${{ env.AUTOCOMPLETION_ENGINE_LOCATION }}/index.js
             ${{ env.AUTOCOMPLETION_ENGINE_LOCATION }}/index.d.ts
@@ -216,7 +216,7 @@ jobs:
         uses: actions/cache@v3
         with:
           path: |
-            ${{ env.AUTOCOMPLETION_ENGINE_LOCATION }}/target/
+            ./autocompletion-engine/target/
             ${{ env.AUTOCOMPLETION_ENGINE_LOCATION }}/*.node
             ${{ env.AUTOCOMPLETION_ENGINE_LOCATION }}/index.js
             ${{ env.AUTOCOMPLETION_ENGINE_LOCATION }}/index.d.ts
@@ -292,7 +292,7 @@ jobs:
         uses: actions/cache@v3
         with:
           path: |
-            ${{ env.AUTOCOMPLETION_ENGINE_LOCATION }}/target/
+            ./autocompletion-engine/target/
             ${{ env.AUTOCOMPLETION_ENGINE_LOCATION }}/*.node
             ${{ env.AUTOCOMPLETION_ENGINE_LOCATION }}/index.js
             ${{ env.AUTOCOMPLETION_ENGINE_LOCATION }}/index.d.ts

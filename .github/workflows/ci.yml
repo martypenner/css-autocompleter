@@ -12,6 +12,7 @@ permissions:
 env:
   CI: true
   DISPLAY: ':99.0'
+  AUTOCOMPLETION_ENGINE_LOCATION: ./autocompletion-engine/crates/node
   TURBO_TOKEN: ${{ secrets.TURBO_TOKEN }}
   TURBO_TEAM: ${{ secrets.TURBO_TEAM }}
 
@@ -52,9 +53,9 @@ jobs:
         with:
           path: |
             ./autocompletion-engine/target/
-            ./autocompletion-engine/*.node
-            ./autocompletion-engine/index.js
-            ./autocompletion-engine/index.d.ts
+            ${{ env.AUTOCOMPLETION_ENGINE_LOCATION }}/*.node
+            ${{ env.AUTOCOMPLETION_ENGINE_LOCATION }}/index.js
+            ${{ env.AUTOCOMPLETION_ENGINE_LOCATION }}/index.d.ts
           key: ${{ runner.os }}-autocompletion-engine-${{ hashFiles('./autocompletion-engine/**/*') }}
 
       - name: Install dependencies
