@@ -15,7 +15,7 @@
     "test:watch": "turbo run test:watch",
     "bench": "turbo run bench",
     "lint": "turbo run lint",
-    "fmt": "prettier --write . --ignore-path .gitignore '!__test__/**/*.css' '!autocompletion-engine/*.js' '!autocompletion-engine/*.ts' && nix fmt && (cd autocompletion-engine && cargo fmt)",
+    "fmt": "prettier --write . --ignore-path .gitignore '!**/__test__/**/*.css' '!autocompletion-engine/crates/node/*.js' '!autocompletion-engine/crates/node/*.ts' && nix fmt && (cd autocompletion-engine && cargo fmt)",
     "clean": "turbo run clean",
     "changeset": "npx changeset",
     "version": "npx changeset version",
