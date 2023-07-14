@@ -27,7 +27,7 @@
     "vscode": "^1.77.0"
   },
   "activationEvents": [
-    "onStartupFinished"
+    "onLanguage"
   ],
   "main": "./main.js",
   "files": [
