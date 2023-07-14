@@ -1,5 +1,11 @@
 # Change Log
 
+## 0.0.9
+
+### Patch Changes
+
+- Perf: delay extension activation until onLanguage ([`55598a1`](https://github.com/martypenner/css-to-go/commit/55598a132eb696220d951eddf727cdefa95ab907))
+
 ## 0.0.8
 
 ### Patch Changes

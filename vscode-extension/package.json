@@ -1,6 +1,6 @@
 {
   "name": "vscode-css-autocomplete",
-  "version": "0.0.8",
+  "version": "0.0.9",
   "displayName": "CSS to Go",
   "description": "CSS autocompletion for VS Code",
   "author": "Marty Penner <css-to-go@penner.me>",
