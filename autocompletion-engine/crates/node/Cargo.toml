@@ -1,0 +1,19 @@
+[package]
+name = "autocompletion-engine-node"
+version = "0.1.0"
+authors = ["Marty Penner <martypenner@users.noreply.github.com>"]
+edition = "2021"
+
+# See more keys and their definitions at https://doc.rust-lang.org/cargo/reference/manifest.html
+
+[lib]
+crate-type = ["cdylib"]
+
+[dependencies]
+# Default enable napi4 feature, see https://nodejs.org/api/n-api.html#node-api-version-matrix
+napi = { version = "2.13.2", default-features = false, features = ["napi4"] }
+napi-derive = "2.13.0"
+autocompletion-engine-core = { path = '../core' }
+
+[build-dependencies]
+napi-build = "2.0.1"

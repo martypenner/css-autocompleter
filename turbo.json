@@ -5,6 +5,10 @@
       "outputs": ["dist/**", "target/**", "index.js", "index.d.ts", "*.node"],
       "dependsOn": ["^build"]
     },
+    "build:node": {
+      "outputs": ["dist/**", "target/**", "index.js", "index.d.ts", "*.node"],
+      "dependsOn": ["^build"]
+    },
     "build:minify": {
       "outputs": ["dist/**", "target/**", "index.js", "index.d.ts", "*.node"],
       "dependsOn": ["^build"]
@@ -28,6 +32,10 @@
       "dependsOn": ["^build"],
       "cache": false,
       "persistent": true
+    },
+    "bench": {
+      "outputs": ["target/criterion/**"],
+      "cache": false
     },
     "clean": {
       "cache": false

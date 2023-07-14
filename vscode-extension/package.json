@@ -123,7 +123,7 @@
     "_esbuild": "node ./esbuild.js src/extension.ts --outfile=dist/main.js --external=vscode --external=@css-to-go/autocompletion-engine"
   },
   "devDependencies": {
-    "@css-to-go/autocompletion-engine": "*",
+    "@css-to-go/autocompletion-engine": "file:../autocompletion-engine/crates/node",
     "@types/glob": "^8.1.0",
     "@types/mocha": "^10.0.1",
     "@types/node": "16.x",

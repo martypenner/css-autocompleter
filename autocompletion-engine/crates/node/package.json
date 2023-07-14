@@ -1,0 +1,53 @@
+{
+  "name": "@css-to-go/autocompletion-engine",
+  "private": true,
+  "version": "0.0.0",
+  "license": "MIT",
+  "main": "index.js",
+  "types": "index.d.ts",
+  "napi": {
+    "name": "autocompletion-engine",
+    "triples": {
+      "additional": [
+        "aarch64-apple-darwin",
+        "aarch64-linux-android",
+        "aarch64-unknown-linux-gnu",
+        "aarch64-unknown-linux-musl",
+        "aarch64-pc-windows-msvc",
+        "armv7-unknown-linux-gnueabihf",
+        "x86_64-unknown-linux-musl",
+        "x86_64-unknown-freebsd",
+        "i686-pc-windows-msvc",
+        "armv7-linux-androideabi",
+        "universal-apple-darwin"
+      ]
+    }
+  },
+  "scripts": {
+    "build": "npx napi build --platform --release",
+    "build:debug": "npx napi build --platform",
+    "clean": "rm -rf *.node"
+  },
+  "devDependencies": {
+    "@napi-rs/cli": "^2.16.1",
+    "ava": "^5.1.1",
+    "concurrently": "^8.2.0"
+  },
+  "ava": {
+    "timeout": "3m"
+  },
+  "engines": {
+    "node": ">= 18"
+  },
+  "optionalDependencies": {
+    "@css-to-go/autocompletion-engine-darwin-arm64": "0.0.0",
+    "@css-to-go/autocompletion-engine-darwin-x64": "0.0.0",
+    "@css-to-go/autocompletion-engine-freebsd-x64": "0.0.0",
+    "@css-to-go/autocompletion-engine-linux-arm-gnueabihf": "0.0.0",
+    "@css-to-go/autocompletion-engine-linux-arm64-gnu": "0.0.0",
+    "@css-to-go/autocompletion-engine-linux-arm64-musl": "0.0.0",
+    "@css-to-go/autocompletion-engine-linux-x64-gnu": "0.0.0",
+    "@css-to-go/autocompletion-engine-linux-x64-musl": "0.0.0",
+    "@css-to-go/autocompletion-engine-win32-x64-msvc": "0.0.0"
+  }
+}

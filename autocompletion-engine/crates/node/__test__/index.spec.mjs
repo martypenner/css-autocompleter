@@ -5,7 +5,9 @@ import { AutocompletionEngine } from '../index.js';
 // TODO: moar tests
 test('get completions from test css file', (t) => {
   const engine = new AutocompletionEngine();
-  const completions = JSON.parse(engine.getAllCompletionsAsString(['./__test__/test.atom.io.css']));
+  const completions = JSON.parse(
+    engine.getAllCompletionsAsString(['./crates/node/__test__/test.atom.io.css'])
+  );
   // Strip surrounding whitespace from each rule set.
   for (const [i, entry] of completions.entries()) {
     const [, ruleSet] = entry;

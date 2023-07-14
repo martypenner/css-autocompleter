@@ -1,6 +1,3 @@
-#[macro_use]
-extern crate napi_derive;
-
 use std::{
   collections::{HashMap, HashSet},
   fs::read_to_string,
@@ -10,7 +7,7 @@ use std::{
 use itertools::Itertools;
 use tree_sitter::{Parser, Query, QueryCursor};
 
-type Completions = Vec<(ClassName, RuleSet)>;
+pub type Completions = Vec<(ClassName, RuleSet)>;
 type IntermediateCompletions = HashMap<ClassName, RuleSetMap>;
 type ClassName = String;
 type RuleSet = String;
@@ -19,16 +16,13 @@ type RuleSetMap = HashMap<RuleSetId, HelpDoc>;
 type RuleSetId = usize;
 type HelpDoc = String;
 
-#[napi]
 pub struct AutocompletionEngine {
   completions: Completions,
   query: Query,
   query_cursor: QueryCursor,
 }
 
-#[napi]
 impl AutocompletionEngine {
-  #[napi(constructor)]
   pub fn new() -> Self {
     Self {
       completions: vec![],
@@ -37,13 +31,11 @@ impl AutocompletionEngine {
     }
   }
 
-  #[napi]
   pub fn get_all_completions_as_string(&mut self, files: Vec<String>) -> String {
     let completions = self.get_all_completions_for_files(files);
     serde_json::to_string(completions).expect("Could not convert class hashmap to string")
   }
 
-  #[napi]
   pub fn invalidate_cache(&mut self) {
     self.completions = vec![];
   }
@@ -52,7 +44,7 @@ impl AutocompletionEngine {
   // TODO: we're currently structured around classnames. This is nice for looping and
   // creating the final completions list, but makes it harder to invalidate the cache
   // for a single file. Need to rethink this.
-  fn get_all_completions_for_files(&mut self, files: Vec<String>) -> &Completions {
+  pub fn get_all_completions_for_files(&mut self, files: Vec<String>) -> &Completions {
     if !self.completions.is_empty() {
       return &self.completions;
     }
@@ -89,9 +81,9 @@ impl AutocompletionEngine {
 
       for each_match in matches {
         let [class_selector, class_name] = each_match.captures else {
-			println!("Could not destructure captures");
-			continue;
-		};
+          println!("Could not destructure captures");
+          continue;
+        };
 
         let class_selector = class_selector.node;
         let class_name = class_name.node;
