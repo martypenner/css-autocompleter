@@ -222,7 +222,6 @@ function getFilesToWatchAndParseFromConfig(
 }
 
 function getFilesToParseFromConfig(config: typeof vscode.workspace.getConfiguration): string[] {
-  config().get(`${EXTENSION_NAME}.${FILES_LIST_KEY}`);
   let files: string[] = (config(EXTENSION_NAME).get(FILES_LIST_KEY) ?? []) as string[];
   if (!Array.isArray(files)) {
     vscode.window.showErrorMessage(
