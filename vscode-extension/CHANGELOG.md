@@ -1,5 +1,11 @@
 # Change Log
 
+## 0.0.10
+
+### Patch Changes
+
+- Fix: remove extraneous config getter ([`7a41431`](https://github.com/martypenner/css-to-go/commit/7a4143118ce1e70cb03cc2759698230c2bf4aa62))
+
 ## 0.0.9
 
 ### Patch Changes
