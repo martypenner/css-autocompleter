@@ -227,6 +227,7 @@ function getFilesToWatchAndParseFromConfig(
 
 function getFilesToParseFromConfig(config: typeof vscode.workspace.getConfiguration): string[] {
   let files: string[] = (config(EXTENSION_NAME).get(FILES_LIST_KEY) ?? []) as string[];
+  console.log('Files from config: ', files);
   if (!Array.isArray(files)) {
     vscode.window.showErrorMessage(
       `Found an invalid config value for ${FILES_LIST_KEY}. Expected an array of strings. Falling back to [].`
