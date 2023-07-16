@@ -171,7 +171,7 @@ function getLanguagesFromConfig(config: typeof vscode.workspace.getConfiguration
     );
     htmlLanguages = [];
   }
-  let javascriptLanguages = config().get(`${EXTENSION_NAME}.${JS_LANGUAGES_KEY}`, []);
+  let javascriptLanguages = config(EXTENSION_NAME).get(JS_LANGUAGES_KEY, []);
   if (!Array.isArray(javascriptLanguages)) {
     vscode.window.showErrorMessage(
       `Found an invalid config value for ${JS_LANGUAGES_KEY}. Expected an array of strings. Falling back to [].`
