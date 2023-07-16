@@ -23,8 +23,11 @@ export function activate(context: vscode.ExtensionContext) {
 
   context.subscriptions.push(
     vscode.commands.registerCommand(`${EXTENSION_NAME}.addCssFileToAutocomplete`, async (file) => {
-      const newList = Array.from(new Set(getFilesToParseFromConfig(config).concat(file.path)));
-      console.log(newList);
+      const oldList = getFilesToParseFromConfig(config);
+      console.log('Old list: ', oldList);
+
+      const newList = Array.from(new Set(oldList.concat(file.path)));
+      console.log('New list: ', newList);
 
       config(EXTENSION_NAME)
         .update(FILES_LIST_KEY, newList, vscode.ConfigurationTarget.Global)
@@ -45,10 +48,11 @@ export function activate(context: vscode.ExtensionContext) {
     vscode.commands.registerCommand(
       `${EXTENSION_NAME}.removeCssFileFromAutocomplete`,
       async (file) => {
-        const newList = Array.from(
-          new Set(getFilesToParseFromConfig(config).filter((path) => path !== file.path))
-        );
-        console.log(newList);
+        const oldList = getFilesToParseFromConfig(config);
+        console.log('Old list: ', oldList);
+
+        const newList = Array.from(new Set(oldList.filter((path) => path !== file.path)));
+        console.log('New list: ', newList);
 
         config(EXTENSION_NAME)
           .update(FILES_LIST_KEY, newList, vscode.ConfigurationTarget.Global)
