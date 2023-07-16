@@ -199,7 +199,15 @@ function getFilesToWatchAndParseFromConfig(
   config: typeof vscode.workspace.getConfiguration,
   engine: AutocompletionEngine
 ): Map<string, vscode.FileSystemWatcher> {
-  const files = getFilesToParseFromConfig(config);
+  let files = getFilesToParseFromConfig(config);
+
+  // Filter files by current workspace
+  const workspaceFolderNames =
+    vscode.workspace.workspaceFolders?.map((folder) => folder.uri.path) ?? [];
+  files = files.filter(
+    (file) =>
+      workspaceFolderNames.find((folder) => path.dirname(file).startsWith(folder)) !== undefined
+  );
 
   const filesAndWatchers = new Map(
     files.map((file) => {
@@ -227,20 +235,12 @@ function getFilesToWatchAndParseFromConfig(
 
 function getFilesToParseFromConfig(config: typeof vscode.workspace.getConfiguration): string[] {
   let files: string[] = (config(EXTENSION_NAME).get(FILES_LIST_KEY) ?? []) as string[];
-  console.log('Files from config: ', files);
   if (!Array.isArray(files)) {
     vscode.window.showErrorMessage(
       `Found an invalid config value for ${FILES_LIST_KEY}. Expected an array of strings. Falling back to [].`
     );
     files = [];
   }
-
-  const workspaceFolderNames =
-    vscode.workspace.workspaceFolders?.map((folder) => folder.uri.path) ?? [];
-  files = files.filter(
-    (file) =>
-      workspaceFolderNames.find((folder) => path.dirname(file).startsWith(folder)) !== undefined
-  );
 
   return files;
 }
