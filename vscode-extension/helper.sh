@@ -3,7 +3,7 @@
 set -euo pipefail
 
 base_url='https://github.com/martypenner/css-to-go/raw/HEAD/vscode-extension'
-base_urls="--baseContentUrl=$base_url --baseImagesUrl=$base_url"
+base_urls=("--baseContentUrl=$base_url" "--baseImagesUrl=$base_url")
 
 move_artifacts() {
   mkdir -p dist/autocompletion-engine >/dev/null 2>&1 || true
@@ -25,14 +25,14 @@ package)
   move_artifacts
   cd dist
   sed -i 's/"main": ".*",/"main": ".\/main.js",/' package.json
-  npx @vscode/vsce package "$base_urls"
+  npx @vscode/vsce package "${base_urls[@]}"
   ;;
 publish)
   cd dist
   if [ -z ${IS_PRERELEASE+x} ]; then
-    npx @vscode/vsce publish "$base_urls"
+    npx @vscode/vsce publish "${base_urls[@]}"
   else
-    npx @vscode/vsce publish --pre-release "$base_urls"
+    npx @vscode/vsce publish --pre-release "${base_urls[@]}"
   fi
   ;;
 *)
