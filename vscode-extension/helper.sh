@@ -29,7 +29,7 @@ package)
   ;;
 publish)
   cd dist
-  if [ -v $IS_PRERELEASE ]; then
+  if [ -z ${IS_PRERELEASE+x} ]; then
     npx @vscode/vsce publish "$base_urls"
   else
     npx @vscode/vsce publish --pre-release "$base_urls"
