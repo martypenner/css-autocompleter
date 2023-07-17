@@ -1,5 +1,11 @@
 # Change Log
 
+## 0.0.12
+
+### Patch Changes
+
+- ci: fix packaging and publishing dynamic params generation ([`6f672ae`](https://github.com/martypenner/css-to-go/commit/6f672ae978485ca5b43dc737c68380078318f139))
+
 ## 0.0.11
 
 ### Patch Changes
