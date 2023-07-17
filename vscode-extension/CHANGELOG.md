@@ -1,5 +1,11 @@
 # Change Log
 
+## 0.0.11
+
+### Patch Changes
+
+- Fix: filter files to parse AFTER updating config ([`61f2eec`](https://github.com/martypenner/css-to-go/commit/61f2eec855749d5c2f5a4abb77cc924c9ed94b3c))
+
 ## 0.0.10
 
 ### Patch Changes
