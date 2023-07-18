@@ -1,5 +1,11 @@
 # Change Log
 
+## 1.0.0
+
+### Major Changes
+
+- Feat: Initial release! ([`49c2397`](https://github.com/martypenner/css-to-go/commit/49c2397f16cd01fc961feb347ed32373ae454d15))
+
 ## 0.0.13
 
 ### Patch Changes
