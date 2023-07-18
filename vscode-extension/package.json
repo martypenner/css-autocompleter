@@ -3,6 +3,7 @@
   "version": "0.0.12",
   "displayName": "CSS to Go",
   "description": "CSS autocompletion for VS Code",
+  "icon": "media/icon.png",
   "author": "Marty Penner <css-to-go@penner.me>",
   "homepage": "https://github.com/martypenner/css-to-go.git",
   "bugs": {
