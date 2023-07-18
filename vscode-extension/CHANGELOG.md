@@ -1,5 +1,11 @@
 # Change Log
 
+## 1.0.2
+
+### Patch Changes
+
+- Chore: make icon background transparent ([`be191b6`](https://github.com/martypenner/css-to-go/commit/be191b6455f6fcd71f23b67a815df53c696ea719))
+
 ## 1.0.1
 
 ### Patch Changes
