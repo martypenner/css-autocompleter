@@ -1,5 +1,11 @@
 # Change Log
 
+## 1.0.1
+
+### Patch Changes
+
+- Docs: add instructions for adding files in the readme ([`383fc35`](https://github.com/martypenner/css-to-go/commit/383fc3576cb3ec5c7567f6953b8550ac478d10cc))
+
 ## 1.0.0
 
 ### Major Changes
