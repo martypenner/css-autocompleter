@@ -1,5 +1,11 @@
 # Change Log
 
+## 0.0.13
+
+### Patch Changes
+
+- Feat: add a cute logo! ([`28ab2aa`](https://github.com/martypenner/css-to-go/commit/28ab2aaf4b3e329992e4600defcac1eb84b79847))
+
 ## 0.0.12
 
 ### Patch Changes
