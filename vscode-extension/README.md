@@ -4,6 +4,8 @@ Autocomplete CSS class names based on CSS files in your workspace.
 
 ![autocomplete](media/2023-07-04.png)
 
+In order to have class names appear in your autocomplete list, you must first add the CSS files you want autocompletion for by right-clicking the file and pressing "Add CSS file to autocomplete".
+
 ## Extension Settings
 
 This extension contributes the following settings:
