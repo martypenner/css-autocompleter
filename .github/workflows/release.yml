@@ -325,7 +325,7 @@ jobs:
       - name: Check if version is already published
         id: check-version
         run: |
-          same=$(npm run check-version)
+          same=$(cd vscode-extension && npm run check-version)
           echo ::set-output name=same::$same
         env:
           VSCE_PAT: ${{ secrets.VSCE_PAT }}
