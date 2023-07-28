@@ -35,6 +35,15 @@ publish)
     npx @vscode/vsce publish --pre-release "${base_urls[@]}"
   fi
   ;;
+check-version)
+  published=$(npx @vscode/vsce show martypenner.vscode-css-autocomplete | grep -A1 -i 'recent versions' | tail -1 | awk '{print $1}')
+  local=$(node -p "require('./package.json').version")
+  if [[ $published == $local ]]; then
+    echo 'true'
+  else
+    echo 'false'
+  fi
+  ;;
 *)
   echo "Invalid command: $1"
   exit 1

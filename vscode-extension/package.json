@@ -120,6 +120,7 @@
     "clean": "rm -rf dist out .vscode-test",
     "package": "./helper.sh package",
     "publish": "./helper.sh publish",
+    "check-version": "./helper.sh check-version",
     "_esbuild": "node ./esbuild.js src/extension.ts --outfile=dist/main.js --external=vscode --external=@css-to-go/autocompletion-engine"
   },
   "devDependencies": {
