@@ -1,5 +1,15 @@
 # Change Log
 
+## 1.1.0
+
+### Minor Changes
+
+- Feat: format autocompleted code using prettier ([`4272124`](https://github.com/martypenner/css-to-go/commit/4272124e8efa9025b11edb9f6d373b75e6fb7d07))
+
+### Patch Changes
+
+- Fix: don't trigger autocomplete unless the cursor is in the class attribute ([`93f8440`](https://github.com/martypenner/css-to-go/commit/93f84405130983eb639e20eaba41cf18cd600237))
+
 ## 1.0.2
 
 ### Patch Changes
