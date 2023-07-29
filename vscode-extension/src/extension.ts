@@ -101,7 +101,7 @@ export function activate(context: vscode.ExtensionContext) {
           // will be bitten by a massive bug or a regex DOS attack and have to
           // rethink this, but it works for now.
           const line = document.lineAt(position).text;
-          const classRegex = /class(?:[nN](?:ame))?=["'](?<classList>[^"']*)/giu;
+          const classRegex = /(.*)(class(?:[nN](?:ame))?=["'])(?<classList>[^"']*)/giu;
           const allMatches = line.matchAll(classRegex);
           const existingClassList = new Set();
 
@@ -112,7 +112,7 @@ export function activate(context: vscode.ExtensionContext) {
             }
 
             const isWithinRange =
-              position.character >= match.index &&
+              position.character >= match.index + match[1].length + match[2].length &&
               position.character <= match.index + match[0].length;
             if (!isWithinRange) {
               return undefined;
