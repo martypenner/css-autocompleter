@@ -1,6 +1,6 @@
 {
   "name": "vscode-css-autocomplete",
-  "version": "1.0.2",
+  "version": "1.1.0",
   "displayName": "CSS to Go",
   "description": "CSS autocompletion for VS Code",
   "icon": "media/icon.png",
