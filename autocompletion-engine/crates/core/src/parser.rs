@@ -168,9 +168,13 @@ impl AutocompletionEngine {
     }
 
     // Convert intermediate completions into final list.
-    // TODO: there HAS to be a better way to convert a map to a final string, but
-    // `collect` was pretty cumbersome, and I gave up.
     let mut completions: Vec<(String, String)> = vec![];
+
+    // Reserve space for completions to prevent reallocations.
+    completions.reserve(rule_maps_by_class_name.len());
+
+    // I tried a .reserve and .drain approach, and there was no benchmarking
+    // improvement. So I opted for the more readable version.
     for class_name in rule_maps_by_class_name.keys().sorted() {
       let rule_map = rule_maps_by_class_name.get(class_name).unwrap().to_owned();
       let rule_sets: Vec<String> = rule_map.into_values().sorted().collect();
