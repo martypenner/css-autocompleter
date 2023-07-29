@@ -5,6 +5,7 @@ use std::{
 };
 
 use itertools::Itertools;
+use log::error;
 use tree_sitter::{Parser, Query, QueryCursor};
 
 pub type Completions = Vec<(ClassName, RuleSet)>;
@@ -24,23 +25,36 @@ pub struct AutocompletionEngine {
 
 impl AutocompletionEngine {
   pub fn new() -> Self {
+    let query = match get_class_selectors_query_for_tree() {
+      Some(q) => q,
+      None => {
+        error!("Failed to create query for tree");
+        panic!("Failed to create query for tree");
+      }
+    };
+
     Self {
       completions: vec![],
-      query: get_class_selectors_query_for_tree(),
+      query,
       query_cursor: QueryCursor::new(),
     }
   }
 
   pub fn get_all_completions_as_string(&mut self, files: Vec<String>) -> String {
     let completions = self.get_all_completions_for_files(files);
-    serde_json::to_string(completions).expect("Could not convert class hashmap to string")
+    match serde_json::to_string(completions) {
+      Ok(stringified) => stringified,
+      Err(e) => {
+        error!("Could not convert class hashmap to string: {}", e);
+        String::from("")
+      }
+    }
   }
 
   pub fn invalidate_cache(&mut self) {
     self.completions = vec![];
   }
 
-  // TODO: log errors instead of panicking
   // TODO: we're currently structured around classnames. This is nice for looping and
   // creating the final completions list, but makes it harder to invalidate the cache
   // for a single file. Need to rethink this.
@@ -51,25 +65,30 @@ impl AutocompletionEngine {
 
     // Ensure we don't operate on the same file twice.
     let files: HashSet<String> = files.into_iter().collect();
-
     let mut rule_maps_by_class_name: IntermediateCompletions = HashMap::new();
 
     for path in files {
       let code = match read_to_string(&path) {
         Ok(code) => code,
         Err(e) => {
-          println!("Could not read file: {}", e);
+          error!("Could not read file {}: {}", path, e);
           continue;
         }
       };
       // Deciding for now to rebuild the parser for every file since I don't know how it
       // works under the hood. It's probably fine to reuse it, but I don't want to risk
       // some weird state bug.
-      let mut parser = self.build_parser();
+      let mut parser = match self.build_parser() {
+        Ok(p) => p,
+        Err(e) => {
+          error!("Failed to build parser: {}", e);
+          continue;
+        }
+      };
       let tree = match parser.parse(&code, None) {
         Some(tree) => tree,
         None => {
-          println!("Could not parse code");
+          error!("Could not parse code in file {}", path);
           continue;
         }
       };
@@ -163,14 +182,13 @@ impl AutocompletionEngine {
     &self.completions
   }
 
-  fn build_parser(&self) -> Parser {
+  fn build_parser(&self) -> Result<Parser, &'static str> {
     let mut parser = Parser::new();
-    parser
-      .set_language(tree_sitter_css::language())
-      // TODO: log this better, and don't panic
-      .expect("Error loading scss grammar");
-
-    parser
+    if parser.set_language(tree_sitter_css::language()).is_err() {
+      error!("Error loading scss grammar");
+      return Err("Error loading scss grammar");
+    }
+    Ok(parser)
   }
 }
 
@@ -180,16 +198,21 @@ impl Default for AutocompletionEngine {
   }
 }
 
-fn get_class_selectors_query_for_tree() -> Query {
-  Query::new(
+fn get_class_selectors_query_for_tree() -> Option<Query> {
+  match Query::new(
     tree_sitter_css::language(),
     r#"
-      (class_selector
-        (class_name) @class_name
-      ) @class_selector
-    "#,
-  )
-  .expect("Could not create tree sitter query")
+            (class_selector
+                (class_name) @class_name
+            ) @class_selector
+        "#,
+  ) {
+    Ok(query) => Some(query),
+    Err(_) => {
+      error!("Could not create tree sitter query");
+      None
+    }
+  }
 }
 
 #[cfg(test)]
@@ -223,6 +246,14 @@ mod tests {
         "#peek .wrapper {\n  width: 860px !important;\n  padding: 0;\n}\n\n#peek2 .wrapper {\n  border: 1px solid red;\n}",
       ),
     ]
+  }
+
+  #[test]
+  fn test_parser_failure() {
+    let mut engine = AutocompletionEngine::new();
+    let completions =
+      engine.get_all_completions_for_files(vec!["invalid_file_path.css".to_string()]);
+    assert!(completions.is_empty());
   }
 
   #[test]
