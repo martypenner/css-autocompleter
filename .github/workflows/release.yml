@@ -323,7 +323,7 @@ jobs:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
 
       - name: Publish
-        if: steps.changesets.outputs.hasChangesets == 'false' && steps.check.outputs.same == 'false'
+        if: steps.changesets.outputs.hasChangesets == 'false'
         run: npm run publish
         env:
           VSCE_PAT: ${{ secrets.VSCE_PAT }}
