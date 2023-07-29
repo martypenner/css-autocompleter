@@ -1,6 +1,7 @@
 import { AutocompletionEngine } from '@css-to-go/autocompletion-engine';
 import * as path from 'node:path';
 import * as vscode from 'vscode';
+import * as prettier from 'prettier';
 
 const EXTENSION_NAME = 'css-to-go';
 const FILES_LIST_KEY = 'filesList';
@@ -136,9 +137,7 @@ export function activate(context: vscode.ExtensionContext) {
                 className,
                 vscode.CompletionItemKind.Constant
               );
-              completion.documentation = new vscode.MarkdownString(
-                ['```css', ruleSet, '```'].join('\n')
-              );
+              completion.documentation = ruleSet;
 
               return completion;
             });
@@ -150,6 +149,21 @@ export function activate(context: vscode.ExtensionContext) {
             );
             console.error(`Error parsing CSS completions from the autocompletion engine: ${error}`);
           }
+        },
+        async resolveCompletionItem(completion, _) {
+          if (typeof completion.documentation !== 'string') {
+            return completion;
+          }
+
+          const formattedRuleSet = prettier.format(completion.documentation, {
+            semi: true,
+            parser: 'css',
+          });
+          completion.documentation = new vscode.MarkdownString(
+            ['```css', formattedRuleSet, '```'].join('\n')
+          );
+
+          return completion;
         },
       },
       "'",
