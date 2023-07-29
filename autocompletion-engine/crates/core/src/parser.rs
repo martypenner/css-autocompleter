@@ -254,7 +254,47 @@ mod tests {
   }
 
   #[test]
-  fn operates_only_once_on_each_file() {
-    // TODO: not sure how to test this
+  fn handles_invalid_file_gracefully() {
+    let mut engine = AutocompletionEngine::new();
+    let completions =
+      engine.get_all_completions_for_files(vec!["non_existent_file.css".to_string()]);
+    assert!(completions.is_empty());
+  }
+
+  #[test]
+  fn handles_empty_file_gracefully() {
+    let mut engine = AutocompletionEngine::new();
+    let completions =
+      engine.get_all_completions_for_files(vec!["./__test__/empty.css".to_string()]);
+    assert!(completions.is_empty());
+  }
+
+  #[test]
+  fn can_invalidate_cache() {
+    let mut engine = AutocompletionEngine::new();
+    engine.get_all_completions_for_files(vec!["./__test__/test.atom.io.css".to_string()]);
+    assert!(!engine.completions.is_empty());
+
+    engine.invalidate_cache();
+    assert!(engine.completions.is_empty());
+  }
+
+  #[test]
+  fn uses_cache_for_subsequent_calls() {
+    let mut engine = AutocompletionEngine::new();
+    let first_call = engine
+      .get_all_completions_for_files(vec!["./__test__/test.atom.io.css".to_string()])
+      .clone();
+    let second_call =
+      engine.get_all_completions_for_files(vec!["./__test__/test.atom.io.css".to_string()]);
+
+    assert_eq!(first_call.len(), second_call.len());
+
+    // The lengths are asserted to be equal, so we can just iterate over
+    // second_call for the comparison.
+    for (i, (class_name, rule_set)) in first_call.iter().enumerate() {
+      assert_eq!(class_name, &second_call[i].0);
+      assert_eq!(rule_set, &second_call[i].1);
+    }
   }
 }
