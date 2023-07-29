@@ -19,12 +19,20 @@ type HelpDoc = String;
 
 pub struct AutocompletionEngine {
   completions: Completions,
+  parser: Parser,
   query: Query,
   query_cursor: QueryCursor,
 }
 
 impl AutocompletionEngine {
   pub fn new() -> Self {
+    let parser = match build_parser() {
+      Ok(p) => p,
+      Err(e) => {
+        error!("Failed to build parser: {}", e);
+        panic!("Failed to build parser ");
+      }
+    };
     let query = match get_class_selectors_query_for_tree() {
       Some(q) => q,
       None => {
@@ -35,6 +43,7 @@ impl AutocompletionEngine {
 
     Self {
       completions: vec![],
+      parser,
       query,
       query_cursor: QueryCursor::new(),
     }
@@ -75,17 +84,7 @@ impl AutocompletionEngine {
           continue;
         }
       };
-      // Deciding for now to rebuild the parser for every file since I don't know how it
-      // works under the hood. It's probably fine to reuse it, but I don't want to risk
-      // some weird state bug.
-      let mut parser = match self.build_parser() {
-        Ok(p) => p,
-        Err(e) => {
-          error!("Failed to build parser: {}", e);
-          continue;
-        }
-      };
-      let tree = match parser.parse(&code, None) {
+      let tree = match self.parser.parse(&code, None) {
         Some(tree) => tree,
         None => {
           error!("Could not parse code in file {}", path);
@@ -185,21 +184,21 @@ impl AutocompletionEngine {
     self.completions = completions;
     &self.completions
   }
-
-  fn build_parser(&self) -> Result<Parser, &'static str> {
-    let mut parser = Parser::new();
-    if parser.set_language(tree_sitter_css::language()).is_err() {
-      error!("Error loading scss grammar");
-      return Err("Error loading scss grammar");
-    }
-    Ok(parser)
-  }
 }
 
 impl Default for AutocompletionEngine {
   fn default() -> Self {
     Self::new()
   }
+}
+
+fn build_parser() -> Result<Parser, &'static str> {
+  let mut parser = Parser::new();
+  if parser.set_language(tree_sitter_css::language()).is_err() {
+    error!("Error loading scss grammar");
+    return Err("Error loading scss grammar");
+  }
+  Ok(parser)
 }
 
 fn get_class_selectors_query_for_tree() -> Option<Query> {
