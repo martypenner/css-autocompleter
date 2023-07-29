@@ -20,6 +20,16 @@ my_find() {
   fi
 }
 
+is-version-published() {
+  published=$(npx @vscode/vsce show martypenner.vscode-css-autocomplete | grep -A1 -i 'recent versions' | tail -1 | awk '{print $1}')
+  local=$(node -p "require('./package.json').version")
+  if [[ $published == $local ]]; then
+    echo 1
+  else
+    echo 0
+  fi
+}
+
 case "$1" in
 package)
   move_artifacts
@@ -28,20 +38,17 @@ package)
   npx @vscode/vsce package "${base_urls[@]}"
   ;;
 publish)
+  same=$(is-version-published)
+  if [[ $same == 1 ]]; then
+    echo "Not publishing since versions match"
+    exit 0
+  fi
+
   cd dist
   if [ -z ${IS_PRERELEASE+x} ]; then
     npx @vscode/vsce publish "${base_urls[@]}"
   else
     npx @vscode/vsce publish --pre-release "${base_urls[@]}"
-  fi
-  ;;
-check-version)
-  published=$(npx @vscode/vsce show martypenner.vscode-css-autocomplete | grep -A1 -i 'recent versions' | tail -1 | awk '{print $1}')
-  local=$(node -p "require('./package.json').version")
-  if [[ $published == $local ]]; then
-    echo 'true'
-  else
-    echo 'false'
   fi
   ;;
 *)
