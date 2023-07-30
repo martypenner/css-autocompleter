@@ -1,5 +1,13 @@
 # Change Log
 
+## 1.1.2
+
+### Patch Changes
+
+- refactor(parser): center everything around files instead of classes. ([`9a556d4`](https://github.com/martypenner/css-to-go/commit/9a556d4b25fd09114fb814d253cd6b3b00ccc404))
+
+  This allows invalidation per file. I also added many tests. Woot!
+
 ## 1.1.1
 
 ### Patch Changes
