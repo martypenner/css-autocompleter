@@ -1,0 +1,27 @@
+/* TODO: nested classes */
+#peek .wrapper {
+  width: 860px !important;
+  padding: 0;
+#peek2 .wrapper {
+  border: 1px solid red;
+}
+fieldset {
+  padding: 0;
+  margin: 0;
+  border: 0;
+}
+label {
+  font-size: 13px;
+  font-weight: bold;
+}
+input[type="text"],
+#adv_code_search .search-page-label
+input[type="password"],
+textarea {
+  min-height: 34px
+  padding: 7px 8px;
+  font-size: 13px;
+  color: #333;
+  vertical-align: middle;
+  background-color: #fff;
+  background-repeat: no-repeat;

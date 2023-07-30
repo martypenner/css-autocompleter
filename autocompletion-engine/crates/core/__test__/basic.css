@@ -17,12 +17,6 @@ label {
 }
 input[type="text"],
 #adv_code_search .search-page-label,
-input[type="password"],
-input[type="email"],
-input[type="number"],
-input[type="tel"],
-input[type="url"],
-input[type="search"],
 textarea {
   min-height: 34px;
   padding: 7px 8px;
@@ -42,18 +36,6 @@ input[type="text"].focus,
 input[type="text"]:focus,
 .focused .drag-and-drop,
 #adv_code_search .search-page-label:focus,
-input[type="password"].focus,
-input[type="password"]:focus,
-input[type="email"].focus,
-input[type="email"]:focus,
-input[type="number"].focus,
-input[type="number"]:focus,
-input[type="tel"].focus,
-input[type="tel"]:focus,
-input[type="url"].focus,
-input[type="url"]:focus,
-input[type="search"].focus,
-input[type="search"]:focus,
 textarea.focus,
 textarea:focus {
   border-color: #51a7e8;
