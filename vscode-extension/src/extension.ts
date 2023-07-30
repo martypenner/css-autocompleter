@@ -55,6 +55,8 @@ export function activate(context: vscode.ExtensionContext) {
         const newList = Array.from(new Set(oldList.filter((path) => path !== file.path)));
         console.log('New list: ', newList);
 
+        engine.invalidateFileCache(file.path);
+
         config(EXTENSION_NAME)
           .update(FILES_LIST_KEY, newList, vscode.ConfigurationTarget.Global)
           .then(

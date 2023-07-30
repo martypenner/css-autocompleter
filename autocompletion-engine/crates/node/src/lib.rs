@@ -27,6 +27,11 @@ impl AutocompletionEngine {
     self.engine.invalidate_cache();
   }
 
+  #[napi]
+  pub fn invalidate_file_cache(&mut self, file_path: String) {
+    self.engine.invalidate_file_cache(file_path);
+  }
+
   pub fn get_all_completions_for_files(&mut self, files: Vec<String>) -> &Completions {
     self.engine.get_all_completions_for_files(files)
   }
