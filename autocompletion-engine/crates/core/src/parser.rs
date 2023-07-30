@@ -64,6 +64,7 @@ impl AutocompletionEngine {
 
   pub fn invalidate_cache(&mut self) {
     self.completions = vec![];
+    self.file_class_map = HashMap::new();
   }
 
   pub fn invalidate_file_cache(&mut self, file_path: String) {
