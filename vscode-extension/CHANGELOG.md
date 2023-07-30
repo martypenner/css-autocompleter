@@ -1,5 +1,11 @@
 # Change Log
 
+## 1.1.1
+
+### Patch Changes
+
+- Perf: reserve some space for the final completions list ([`8587024`](https://github.com/martypenner/css-to-go/commit/8587024c882f315d16c089b5243d2cac91dd7db7))
+
 ## 1.1.0
 
 ### Minor Changes
