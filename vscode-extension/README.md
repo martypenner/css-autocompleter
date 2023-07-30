@@ -1,6 +1,6 @@
 ## Features
 
-Autocomplete CSS class names based on CSS files in your workspace.
+Let Dotzie, the pixel pilot, be your guide! Hand them any CSS files in your workspace, and they'll offer autocompletion based on the classnames.
 
 ![autocomplete](media/2023-07-04.png)
 
