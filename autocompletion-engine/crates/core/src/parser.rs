@@ -180,15 +180,27 @@ impl AutocompletionEngine {
       }
     }
 
+    let mut class_name_index_map: HashMap<ClassName, usize> = HashMap::new();
+
     // Convert the file-centric map into the completions list.
     // I tried a .reserve and .drain approach, and there was no benchmarking
     // improvement. So I opted for the more readable version.
     for class_rule_map in self.file_class_map.values() {
       for (class_name, rule_set_map) in class_rule_map {
         let rule_sets: Vec<String> = rule_set_map.clone().into_values().sorted().collect();
-        self
-          .completions
-          .push((class_name.clone(), rule_sets.join("\n\n")));
+        match class_name_index_map.get(class_name) {
+          Some(&index) => {
+            self.completions[index]
+              .1
+              .push_str(&["\n\n"].join(rule_sets.join("\n\n").as_str()));
+          }
+          None => {
+            self
+              .completions
+              .push((class_name.clone(), rule_sets.join("\n\n")));
+            class_name_index_map.insert(class_name.clone(), self.completions.len() - 1);
+          }
+        }
       }
     }
 
@@ -363,7 +375,7 @@ mod tests {
       .filter(|(class_name, _)| class_name == "wrapper")
       .collect();
 
-    assert!(class_entries.len() == 2);
+    assert_eq!(class_entries.len(), 1);
   }
 
   #[test]
@@ -379,7 +391,7 @@ mod tests {
       .iter()
       .filter(|(class_name, _)| class_name == "wrapper")
       .count();
-    assert_eq!(duplicate_class_count, 2);
+    assert_eq!(duplicate_class_count, 1);
   }
 
   #[test]
