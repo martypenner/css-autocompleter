@@ -36,7 +36,6 @@ dependencies = [
  "criterion",
  "itertools 0.11.0",
  "log",
- "rayon",
  "serde_json",
  "tempfile",
  "tracing",
