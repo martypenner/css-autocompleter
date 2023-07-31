@@ -1,5 +1,11 @@
 # Change Log
 
+## 1.1.3
+
+### Patch Changes
+
+- fix: don't double add class rule sets to completions ([`e5624f7`](https://github.com/martypenner/css-to-go/commit/e5624f72c704635dce15ebd1e17359687b5b6ae3))
+
 ## 1.1.2
 
 ### Patch Changes
