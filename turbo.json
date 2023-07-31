@@ -20,6 +20,11 @@
     "test": {
       "inputs": ["src/**", "test/**", "tests/**", "__test__/**", "**/*.test.js", "**/*.spec.*"],
       "outputs": ["coverage/**", "out/**"],
+      "dependsOn": ["build:tests"]
+    },
+    "vscode-css-autocomplete#test": {
+      "inputs": ["src/**", "test/**", "tests/**", "**/*.test.js", "**/*.spec.*"],
+      "outputs": ["coverage/**", "out/**"],
       "dependsOn": ["build", "build:tests"]
     },
     "test:watch": {
