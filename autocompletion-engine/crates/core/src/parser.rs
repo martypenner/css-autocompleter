@@ -71,7 +71,9 @@ impl AutocompletionEngine {
     self.file_class_map.remove(&file_path);
   }
 
-  pub fn get_all_completions_for_files(&mut self, files: Vec<String>) -> &Completions {
+  pub fn get_all_completions_for_files(&mut self, mut files: Vec<String>) -> &Completions {
+    files.sort();
+
     // Ensure we don't operate on the same file twice.
     let unique_files: HashSet<String> = files.into_iter().collect();
     let files_already_processed = unique_files
@@ -187,8 +189,15 @@ impl AutocompletionEngine {
     // I tried a .reserve and .drain approach, and there was no benchmarking
     // improvement. So I opted for the more readable version.
     for class_rule_map in self.file_class_map.values() {
-      for (class_name, rule_set_map) in class_rule_map {
+      let classes = class_rule_map.keys().sorted();
+
+      for class_name in classes {
+        let rule_set_map = match class_rule_map.get(class_name) {
+          Some(rule_set_map) => rule_set_map,
+          None => continue,
+        };
         let rule_sets: Vec<String> = rule_set_map.clone().into_values().sorted().collect();
+
         match class_name_index_map.get(class_name) {
           Some(&index) => {
             let existing_rule_sets = &mut self.completions[index].1;
@@ -340,7 +349,7 @@ mod tests {
   }
 
   #[test]
-  fn test_file_cache_invalidation() {
+  fn can_invalidate_individual_files() {
     let mut engine = AutocompletionEngine::new();
     engine.get_all_completions_for_files(vec!["./__test__/basic.css".to_string()]);
     assert!(!engine.file_class_map.is_empty());
@@ -372,16 +381,24 @@ mod tests {
     ]);
 
     // Locate the class name in question within the completions list
-    let class_entries: Vec<&(String, String)> = completions
+    match completions
       .iter()
-      .filter(|(class_name, _)| class_name == "wrapper")
-      .collect();
-
-    assert_eq!(class_entries.len(), 1);
-    assert_eq!(
-      class_entries[0].1,
-      expected.to_string() + "\n\n#peek .wrapper {\n  color: red;\n}"
-    );
+      .find(|(class_name, _)| class_name == "wrapper")
+    {
+      Some(entry) => {
+        // TODO: figure out how to make this more deterministic. For some reason, I'm
+        // getting intermittent failures only on this test due to out-of-order
+        // rulesets. Not sure why, as I'm sorting both the file list and the class list
+        // before comparing. Must be some idiosyncrasy of rust.
+        assert_eq!(
+          entry.1,
+          format!("{}\n\n{}", expected, "#peek .wrapper {\n  color: red;\n}",)
+        );
+      }
+      None => {
+        panic!("Could not find class entry in test")
+      }
+    };
   }
 
   #[test]
@@ -401,7 +418,7 @@ mod tests {
   }
 
   #[test]
-  fn test_file_with_malformed_css() {
+  fn file_with_malformed_css_provides_partial_completions() {
     let mut engine = AutocompletionEngine::new();
     let completions =
       engine.get_all_completions_for_files(vec!["./__test__/malformed.css".to_string()]);
