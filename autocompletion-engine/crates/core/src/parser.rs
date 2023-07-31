@@ -374,7 +374,7 @@ mod tests {
   #[test]
   fn multiple_rulesets_for_single_classname_across_files() {
     let mut engine = AutocompletionEngine::new();
-    let expected = get_list()[5].1;
+    let _expected = get_list()[5].1;
     let completions = engine.get_all_completions_for_files(vec![
       "./__test__/basic.css".to_string(),
       "./__test__/another_file_with_same_classname.css".to_string(),
@@ -385,7 +385,7 @@ mod tests {
       .iter()
       .find(|(class_name, _)| class_name == "wrapper")
     {
-      Some(entry) => {
+      Some(_entry) => {
         // TODO: figure out how to make this more deterministic. For some reason, I'm
         // getting intermittent failures only on this test due to out-of-order
         // rulesets. Not sure why, as I'm sorting both the file list and the class list
