@@ -191,9 +191,9 @@ impl AutocompletionEngine {
         let rule_sets: Vec<String> = rule_set_map.clone().into_values().sorted().collect();
         match class_name_index_map.get(class_name) {
           Some(&index) => {
-            self.completions[index]
-              .1
-              .push_str(&["\n\n"].join(rule_sets.join("\n\n").as_str()));
+            let existing_rule_sets = &mut self.completions[index].1;
+            existing_rule_sets.push_str("\n\n");
+            existing_rule_sets.push_str(rule_sets.join("\n\n").as_str());
           }
           None => {
             self
@@ -365,6 +365,7 @@ mod tests {
   #[test]
   fn multiple_rulesets_for_single_classname_across_files() {
     let mut engine = AutocompletionEngine::new();
+    let expected = get_list()[5].1;
     let completions = engine.get_all_completions_for_files(vec![
       "./__test__/basic.css".to_string(),
       "./__test__/another_file_with_same_classname.css".to_string(),
@@ -377,6 +378,10 @@ mod tests {
       .collect();
 
     assert_eq!(class_entries.len(), 1);
+    assert_eq!(
+      class_entries[0].1,
+      expected.to_string() + "\n\n#peek .wrapper {\n  color: red;\n}"
+    );
   }
 
   #[test]
