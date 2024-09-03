@@ -304,7 +304,7 @@ jobs:
           npm install
 
       - name: Download artifacts
-        uses: actions/download-artifact@v3
+        uses: actions/download-artifact@v4.1.7
         with:
           path: ${{ env.AUTOCOMPLETION_ENGINE_LOCATION }}
 
